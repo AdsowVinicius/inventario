@@ -56,12 +56,22 @@ def salvar_contagem(
 ):
     """
     Salva uma nova contagem no banco de dados
+    
+    O número de contagem é gerado automaticamente baseado nas contagens existentes
     """
     try:
-        # Criar novo registro
+        # Calcular próximo número de contagem automaticamente
+        max_contagem = db.query(func.max(FormsContagem.num_contagem)).filter(
+            FormsContagem.etiqueta_inventario == contagem.etiqueta_inventario,
+            FormsContagem.planta == contagem.planta
+        ).scalar()
+        
+        proximo_numero = (max_contagem or 0) + 1
+        
+        # Criar novo registro com número automático
         nova_contagem = FormsContagem(
             planta=contagem.planta,
-            num_contagem=contagem.num_contagem,
+            num_contagem=proximo_numero,
             zona_inventario=contagem.zona_inventario,
             etiqueta_inventario=contagem.etiqueta_inventario,
             part_number=contagem.part_number,
@@ -76,7 +86,7 @@ def salvar_contagem(
         
         return MessageResponse(
             status="ok",
-            mensagem="Contagem salva com sucesso!"
+            mensagem=f"Contagem #{proximo_numero} salva com sucesso!"
         )
     
     except Exception as e:

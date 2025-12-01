@@ -118,23 +118,6 @@
   font-weight: 600;
   color: #333;
   font-size: 0.9rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.checkbox-inline {
-  font-weight: 400;
-  font-size: 0.85rem;
-  color: #666;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  cursor: pointer;
-}
-
-.checkbox-inline input[type="checkbox"] {
-  cursor: pointer;
 }
 
 .form-group input,
@@ -171,19 +154,6 @@
 .form-group input::placeholder {
   color: #999;
   opacity: 1;
-}
-
-/* Aumentar área de toque para checkboxes */
-.checkbox-inline {
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-}
-
-.checkbox-inline input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
 }
 
 .form-group input[type="text"][list] {

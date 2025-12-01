@@ -26,7 +26,6 @@ const Contagem = () => {
   });
   
   const [formData, setFormData] = useState({
-    num_contagem: 1,
     etiqueta_inventario: '',
     part_number: '',
     campo: '',
@@ -36,7 +35,6 @@ const Contagem = () => {
   const [partNumbers, setPartNumbers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-  const [autoSugestao, setAutoSugestao] = useState(true);
   const [contagensRealizadas, setContagensRealizadas] = useState(0);
   const [zonasDisponiveis, setZonasDisponiveis] = useState(
     ZONAS_POR_PLANTA[user?.planta || 'PS01'] || []
@@ -85,7 +83,6 @@ const Contagem = () => {
       zona_inventario: ''
     });
     setFormData({
-      num_contagem: 1,
       etiqueta_inventario: '',
       part_number: '',
       campo: '',
@@ -103,40 +100,13 @@ const Contagem = () => {
     }));
   };
   
-  // Sugerir número de contagem automaticamente
-  const sugerirNumeroContagem = async () => {
-    if (!formData.part_number || !formData.etiqueta_inventario || !autoSugestao) {
-      return;
-    }
-    
-    try {
-      const response = await contagemService.sugerirNumero(
-        formData.part_number,
-        formData.etiqueta_inventario,
-        plantaUsuario
-      );
-      
-      setFormData(prev => ({
-        ...prev,
-        num_contagem: response.num_contagem_sugerido
-      }));
-    } catch (err) {
-      console.error('Erro ao sugerir número:', err);
-    }
-  };
-  
-  // Disparar sugestão quando mudar part number ou etiqueta
-  useEffect(() => {
-    if (formData.part_number && formData.etiqueta_inventario) {
-      sugerirNumeroContagem();
-    }
-  }, [formData.part_number, formData.etiqueta_inventario, plantaUsuario]);
+  // Número de contagem é gerado automaticamente pelo backend
   
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'qtd' || name === 'num_contagem' ? parseFloat(value) || 0 : value
+      [name]: name === 'qtd' ? parseFloat(value) || 0 : value
     }));
     setMessage(null);
   };
@@ -165,12 +135,16 @@ const Contagem = () => {
       
       // Limpar apenas os campos da contagem, manter zona
       setFormData({
-        num_contagem: 1,
         etiqueta_inventario: '',
         part_number: '',
         campo: '',
         qtd: 0
       });
+      
+      // Focar no primeiro campo
+      setTimeout(() => {
+        document.querySelector('input[name="etiqueta_inventario"]')?.focus();
+      }, 100);
       
       // Limpar mensagem após 3 segundos
       setTimeout(() => setMessage(null), 3000);
@@ -179,6 +153,9 @@ const Contagem = () => {
         type: 'error',
         text: err.response?.data?.detail || 'Erro ao salvar contagem'
       });
+      
+      // Manter mensagem de erro por mais tempo (5 segundos)
+      setTimeout(() => setMessage(null), 5000);
     } finally {
       setLoading(false);
     }
@@ -251,28 +228,6 @@ const Contagem = () => {
               
               <form onSubmit={handleSubmit} className="contagem-form">
                 <div className="form-row">
-                  <div className="form-group">
-                    <label>
-                      Número da Contagem *
-                      <label className="checkbox-inline">
-                        <input
-                          type="checkbox"
-                          checked={autoSugestao}
-                          onChange={(e) => setAutoSugestao(e.target.checked)}
-                        />
-                        Auto
-                      </label>
-                    </label>
-                    <input
-                      type="number"
-                      name="num_contagem"
-                      value={formData.num_contagem}
-                      onChange={handleChange}
-                      min="1"
-                      required
-                    />
-                  </div>
-                  
                   <div className="form-group">
                     <label>Etiqueta de Inventário *</label>
                     <input

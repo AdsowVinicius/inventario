@@ -6,7 +6,6 @@ from datetime import datetime
 class ContagemBase(BaseModel):
     """Schema base de contagem"""
     planta: str
-    num_contagem: int = Field(..., ge=1)
     zona_inventario: str
     etiqueta_inventario: str
     part_number: str
@@ -15,13 +14,14 @@ class ContagemBase(BaseModel):
 
 
 class ContagemCreate(ContagemBase):
-    """Schema para criar contagem"""
+    """Schema para criar contagem - num_contagem é gerado automaticamente"""
     pass
 
 
 class ContagemResponse(ContagemBase):
     """Schema de resposta de contagem"""
     id: int
+    num_contagem: int
     usuario_id: int
     timestamp: datetime
     
