@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Contagem from './pages/Contagem';
 import Exportacao from './pages/Exportacao';
+import UserManagement from './pages/UserManagement';
 import ProtectedRoute from './components/ProtectedRoute';
 import { authService } from './services/api';
 import './index.css';
@@ -35,6 +36,15 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={['ADMIN', 'ENCARREGADO']}>
               <Exportacao />
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/usuarios" 
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'ENCARREGADO']}>
+              <UserManagement />
             </ProtectedRoute>
           } 
         />

@@ -44,6 +44,15 @@ const PLANTAS = ['PS01', 'PS02', 'PS03', 'PS05', 'PS09', 'PB82'];
 const PLANTAS = ['PS01', 'PS02', 'PS03', 'PS05', 'PS09', 'PB82'];
 ```
 
+#### **Frontend - Gestão de Usuários:**
+- **Arquivo:** `app/frontend/src/pages/UserManagement.jsx`
+- **Linha:** 6
+- **Tipo:** Array constante
+
+```javascript
+const PLANTAS = ['PS01', 'PS02', 'PS03', 'PS05', 'PS09', 'PB82'];
+```
+
 #### **Banco de Dados:**
 - **Arquivo:** `database_setup.sql`
 - **Linha:** 20
@@ -77,8 +86,14 @@ planta ENUM('PS01', 'PS02', 'PS03', 'PS05', 'PS09', 'PB82') NOT NULL,
    const PLANTAS = ['PS01', 'PS02', 'PS03', 'PS05', 'PS09', 'PB82', 'PS10'];
    ```
 
-4. **Atualizar Banco de Dados:**
+5. **Atualizar Banco de Dados:**
    ```sql
+   -- Executar no MySQL
+   ALTER TABLE user_table 
+   MODIFY COLUMN planta ENUM('PS01', 'PS02', 'PS03', 'PS05', 'PS09', 'PB82', 'PS10') NOT NULL;
+   ```
+
+6. **Configurar Zonas (ver seção abaixo)**
    -- Executar no MySQL
    ALTER TABLE user_table 
    MODIFY COLUMN planta ENUM('PS01', 'PS02', 'PS03', 'PS05', 'PS09', 'PB82', 'PS10') NOT NULL;
@@ -194,10 +209,26 @@ role ENUM('ADMIN', 'ENCARREGADO', 'CONTADOR') NOT NULL DEFAULT 'CONTADOR',
 | Role        | Login | Contagem | Exportação | Gestão Usuários |
 |-------------|-------|----------|------------|-----------------|
 | CONTADOR    | ✅    | ✅       | ❌         | ❌              |
-| ENCARREGADO | ✅    | ✅       | ✅         | ❌              |
-| ADMIN       | ✅    | ✅       | ✅         | ✅*             |
+| ENCARREGADO | ✅    | ✅       | ✅         | ✅ (sua planta) |
+| ADMIN       | ✅    | ✅       | ✅         | ✅ (todas)      |
 
-*Gestão de usuários ainda não implementada
+### 🔐 Regras de Gestão de Usuários:
+
+**ADMIN:**
+- ✅ Ver todos os usuários de todas as plantas
+- ✅ Criar usuários em qualquer planta
+- ✅ Editar qualquer usuário (exceto ele mesmo para deleção)
+- ✅ Deletar qualquer usuário (exceto ele mesmo)
+- ✅ Criar outros ADMINs
+
+**ENCARREGADO:**
+- ✅ Ver apenas usuários de sua planta
+- ✅ Criar usuários apenas em sua planta
+- ✅ Editar usuários de sua planta (exceto ADMINs)
+- ✅ Deletar usuários de sua planta (exceto ADMINs)
+- ❌ NÃO pode criar ADMINs
+- ❌ NÃO pode editar/deletar ADMINs
+- ❌ NÃO pode mudar usuários para outra planta
 
 ### ✏️ Como Adicionar um Novo Role:
 
@@ -490,6 +521,7 @@ Ao adicionar uma nova planta, você precisa atualizar:
 - [ ] `app/frontend/src/pages/Contagem.jsx` - PLANTAS (linha 6)
 - [ ] `app/frontend/src/pages/Contagem.jsx` - ZONAS_POR_PLANTA (linhas 9-16)
 - [ ] `app/frontend/src/pages/Exportacao.jsx` - PLANTAS (linha 6)
+- [ ] `app/frontend/src/pages/UserManagement.jsx` - PLANTAS (linha 6)
 - [ ] `database_setup.sql` - Enum de plantas
 - [ ] Banco de dados - ALTER TABLE (se já em produção)
 

@@ -23,6 +23,14 @@ class UserResponse(UserBase):
         from_attributes = True
 
 
+class UserUpdate(BaseModel):
+    """Schema para atualizar usuário"""
+    user_name: Optional[str] = Field(None, min_length=3, max_length=100)
+    senha: Optional[str] = Field(None, min_length=6)
+    planta: Optional[PlantaEnum] = None
+    role: Optional[RoleEnum] = None
+
+
 class UserLogin(BaseModel):
     """Schema para login"""
     user_name: str

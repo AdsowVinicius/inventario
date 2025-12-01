@@ -15,6 +15,7 @@ const Navbar = () => {
   if (!user) return null;
   
   const canExport = user.role === 'ADMIN' || user.role === 'ENCARREGADO';
+  const canManageUsers = user.role === 'ADMIN' || user.role === 'ENCARREGADO';
   
   return (
     <nav className="navbar">
@@ -30,6 +31,12 @@ const Navbar = () => {
         {canExport && (
           <Link to="/exportacao" className="navbar-item">
             📊 Exportação
+          </Link>
+        )}
+        
+        {canManageUsers && (
+          <Link to="/usuarios" className="navbar-item">
+            👥 Usuários
           </Link>
         )}
       </div>
