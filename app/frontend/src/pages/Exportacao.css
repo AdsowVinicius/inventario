@@ -1,7 +1,7 @@
 .exportacao-container {
   max-width: 900px;
-  margin: 2rem auto;
-  padding: 0 20px;
+  margin: 1rem auto;
+  padding: 0 0.75rem;
 }
 
 .exportacao-card {
@@ -57,11 +57,13 @@
 
 .form-group input,
 .form-group select {
-  padding: 0.75rem;
+  padding: 0.875rem;
   border: 2px solid #e0e0e0;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 16px;
   transition: border-color 0.3s;
+  min-height: 48px;
+  touch-action: manipulation;
 }
 
 .form-group input:focus,
@@ -199,6 +201,8 @@
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s;
+  min-height: 52px;
+  touch-action: manipulation;
 }
 
 .btn-export:hover:not(:disabled) {
@@ -261,26 +265,73 @@
 }
 
 @media (max-width: 768px) {
+  .exportacao-container {
+    margin: 0.5rem auto;
+    padding: 0 0.5rem;
+  }
+  
+  .exportacao-card {
+    padding: 1rem;
+    border-radius: 10px;
+  }
+  
+  .exportacao-card h2 {
+    font-size: 1.3rem;
+  }
+  
+  .subtitle {
+    font-size: 0.9rem;
+  }
+  
   .form-row,
   .buttons-row {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .form-group label {
+    font-size: 0.85rem;
   }
   
   .btn-limpar,
   .btn-preview {
     margin-top: 0;
+    padding: 0.875rem;
+    min-height: 48px;
+    font-size: 0.95rem;
   }
   
-  .exportacao-card {
-    padding: 1.5rem;
+  .filtros-form {
+    padding: 1rem;
+  }
+  
+  .filtros-form h3,
+  .exportacao-actions h3 {
+    font-size: 1rem;
+  }
+  
+  .btn-export {
+    font-size: 0.95rem;
   }
   
   .table-container {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   
   .preview-table th,
   .preview-table td {
-    padding: 0.5rem;
+    padding: 0.4rem;
+    white-space: nowrap;
+  }
+  
+  .preview-section h3 {
+    font-size: 1rem;
+  }
+  
+  .preview-note,
+  .info-box p {
+    font-size: 0.85rem;
   }
 }

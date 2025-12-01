@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  padding: 20px;
+  padding: 1rem;
 }
 
 .login-box {
@@ -52,11 +52,12 @@
 }
 
 .form-group input {
-  padding: 0.75rem;
+  padding: 0.875rem;
   border: 2px solid #e0e0e0;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 16px;
   transition: border-color 0.3s;
+  min-height: 48px;
 }
 
 .form-group input:focus {
@@ -74,15 +75,17 @@
 }
 
 .btn-login {
-  padding: 0.75rem;
+  padding: 1rem;
   background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
+  min-height: 48px;
+  touch-action: manipulation;
 }
 
 .btn-login:hover:not(:disabled) {
