@@ -15,6 +15,14 @@ const ZONAS_POR_PLANTA = {
   'PB82': ['ZONA-A', 'ZONA-B']
 };
 
+const normalizeCode = (value) => {
+  if (value === null || value === undefined) return '';
+  const text = String(value).trim();
+  if (text === '') return '';
+  const sanitized = text.replace(/^0+/, '');
+  return sanitized === '' ? '0' : sanitized;
+};
+
 const Contagem = () => {
   const user = authService.getCurrentUser();
   
@@ -28,7 +36,6 @@ const Contagem = () => {
   const [formData, setFormData] = useState({
     etiqueta_inventario: '',
     part_number: '',
-    campo: '',
     qtd: 0
   });
   
@@ -39,7 +46,13 @@ const Contagem = () => {
   const [zonasDisponiveis, setZonasDisponiveis] = useState(
     ZONAS_POR_PLANTA[user?.planta || 'PS01'] || []
   );
-  
+  const [numContagem, setNumContagem] = useState(1);
+  const [numeroSugerido, setNumeroSugerido] = useState(1);
+  const [contagemErrada, setContagemErrada] = useState(false);
+  const [unidadeMedida, setUnidadeMedida] = useState('');
+  const [buscandoSugestao, setBuscandoSugestao] = useState(false);
+  const [sugestaoTrigger, setSugestaoTrigger] = useState(0);
+
   // Planta fixa do usuário
   const plantaUsuario = user?.planta || 'PS01';
   
@@ -53,11 +66,28 @@ const Contagem = () => {
   const carregarPartNumbers = async (planta) => {
     try {
       const data = await itensService.listarPartNumbers(planta);
-      setPartNumbers(data);
+      const enriquecidos = data.map(item => ({
+        ...item,
+        part_number_normalizado: normalizeCode(item.part_number)
+      }));
+      setPartNumbers(enriquecidos);
     } catch (err) {
       console.error('Erro ao carregar part numbers:', err);
     }
   };
+
+  useEffect(() => {
+    if (!formData.part_number) {
+      setUnidadeMedida('');
+      return;
+    }
+
+    const atualNormalizado = normalizeCode(formData.part_number);
+    const info = partNumbers.find(item => 
+      item.part_number === formData.part_number || item.part_number_normalizado === atualNormalizado
+    );
+    setUnidadeMedida(info?.und_medida || '');
+  }, [formData.part_number, partNumbers]);
   
   // Função para iniciar contagens na zona
   const iniciarContagens = (e) => {
@@ -85,11 +115,16 @@ const Contagem = () => {
     setFormData({
       etiqueta_inventario: '',
       part_number: '',
-      campo: '',
       qtd: 0
     });
     setMessage(null);
     setContagensRealizadas(0);
+    setNumContagem(1);
+    setNumeroSugerido(1);
+    setContagemErrada(false);
+    setUnidadeMedida('');
+    setBuscandoSugestao(false);
+    setSugestaoTrigger(0);
   };
   
   const handleZonaChange = (e) => {
@@ -101,6 +136,56 @@ const Contagem = () => {
   };
   
   // Número de contagem é gerado automaticamente pelo backend
+
+  useEffect(() => {
+    if (etapa !== 2) {
+      setNumeroSugerido(1);
+      setBuscandoSugestao(false);
+      if (!contagemErrada) {
+        setNumContagem(1);
+      }
+      return;
+    }
+
+    if (!formData.etiqueta_inventario) {
+      setNumeroSugerido(1);
+      setBuscandoSugestao(false);
+      if (!contagemErrada) {
+        setNumContagem(1);
+      }
+      return;
+    }
+
+    let ativo = true;
+    setBuscandoSugestao(true);
+
+    contagemService.sugerir(
+      formData.part_number ? normalizeCode(formData.part_number) : undefined,
+      normalizeCode(formData.etiqueta_inventario),
+      zonaAtual.planta || plantaUsuario
+    ).then((data) => {
+      if (!ativo) return;
+      setNumeroSugerido(data.num_contagem_sugerido);
+      if (!contagemErrada) {
+        setNumContagem(data.num_contagem_sugerido);
+      }
+    }).catch((err) => {
+      if (!ativo) return;
+      console.error('Erro ao sugerir número de contagem:', err);
+      setMessage({
+        type: 'error',
+        text: err.response?.data?.detail || 'Erro ao sugerir número da contagem'
+      });
+    }).finally(() => {
+      if (ativo) {
+        setBuscandoSugestao(false);
+      }
+    });
+
+    return () => {
+      ativo = false;
+    };
+  }, [etapa, formData.part_number, formData.etiqueta_inventario, zonaAtual.planta, contagemErrada, plantaUsuario, sugestaoTrigger]);
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -109,6 +194,46 @@ const Contagem = () => {
       [name]: name === 'qtd' ? parseFloat(value) || 0 : value
     }));
     setMessage(null);
+  };
+
+  const handleNumeroContagemChange = (value) => {
+    const parsed = parseInt(value, 10);
+    if (Number.isNaN(parsed) || parsed < 1) {
+      setNumContagem(1);
+      return;
+    }
+    setNumContagem(parsed);
+  };
+
+  const handleContagemErradaChange = (e) => {
+    const { checked } = e.target;
+    setContagemErrada(checked);
+    if (!checked) {
+      setNumContagem(numeroSugerido);
+    }
+  };
+
+  const handleEtiquetaBlur = () => {
+    if (!formData.etiqueta_inventario) {
+      return;
+    }
+    const normalizada = normalizeCode(formData.etiqueta_inventario);
+    setFormData(prev => ({
+      ...prev,
+      etiqueta_inventario: normalizada
+    }));
+    setSugestaoTrigger(prev => prev + 1);
+  };
+
+  const handlePartNumberBlur = () => {
+    if (!formData.part_number) {
+      return;
+    }
+    const normalizada = normalizeCode(formData.part_number);
+    setFormData(prev => ({
+      ...prev,
+      part_number: normalizada
+    }));
   };
   
   const handleSubmit = async (e) => {
@@ -120,7 +245,10 @@ const Contagem = () => {
       // Combinar dados da zona com dados da contagem
       const dadosCompletos = {
         ...zonaAtual,
-        ...formData
+        ...formData,
+        etiqueta_inventario: normalizeCode(formData.etiqueta_inventario) || formData.etiqueta_inventario,
+        part_number: formData.part_number ? (normalizeCode(formData.part_number) || formData.part_number) : '',
+        ...(contagemErrada ? { num_contagem: numContagem } : {})
       };
       
       const response = await contagemService.salvar(dadosCompletos);
@@ -137,9 +265,13 @@ const Contagem = () => {
       setFormData({
         etiqueta_inventario: '',
         part_number: '',
-        campo: '',
         qtd: 0
       });
+      setContagemErrada(false);
+      setNumContagem(1);
+      setNumeroSugerido(1);
+      setUnidadeMedida('');
+      setSugestaoTrigger(prev => prev + 1);
       
       // Focar no primeiro campo
       setTimeout(() => {
@@ -235,6 +367,7 @@ const Contagem = () => {
                       name="etiqueta_inventario"
                       value={formData.etiqueta_inventario}
                       onChange={handleChange}
+                      onBlur={handleEtiquetaBlur}
                       placeholder="Ex: 12345"
                       required
                       min="0"
@@ -251,6 +384,7 @@ const Contagem = () => {
                     name="part_number"
                     value={formData.part_number}
                     onChange={handleChange}
+                    onBlur={handlePartNumberBlur}
                     placeholder="Digite ou escaneie o código numérico"
                     required
                     min="0"
@@ -258,19 +392,49 @@ const Contagem = () => {
                   />
                 </div>
                 
-                <div className="form-group">
-                  <label>Campo</label>
-                  <input
-                    type="text"
-                    name="campo"
-                    value={formData.campo}
-                    onChange={handleChange}
-                    placeholder="Informação adicional (opcional)"
-                  />
+                <div className="form-row contagem-numero-row">
+                  <div className="form-group">
+                    <label>Número da Contagem</label>
+                    <div className="contagem-numero-wrapper">
+                      <input
+                        type="number"
+                        name="num_contagem"
+                        value={numContagem}
+                        onChange={(e) => handleNumeroContagemChange(e.target.value)}
+                        min="1"
+                        step="1"
+                        disabled={!contagemErrada}
+                      />
+                      <span className="sugestao-badge">
+                        {buscandoSugestao ? 'Buscando...' : `Sugestão: #${numeroSugerido}`}
+                      </span>
+                    </div>
+                    <small className="help-text">
+                      {contagemErrada ? 'Valor editável para corrigir divergências' : 'Preenchido automaticamente pelo sistema'}
+                    </small>
+                  </div>
+                  <div className="form-group checkbox-group">
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={contagemErrada}
+                        onChange={handleContagemErradaChange}
+                      />
+                      Corrigir contagem
+                    </label>
+                    <small className="help-text">
+                      Permite ajustar o número manualmente
+                    </small>
+                  </div>
                 </div>
                 
                 <div className="form-group">
-                  <label>Quantidade (QTD) *</label>
+                  <label>
+                    Quantidade (QTD) *
+                    {unidadeMedida && (
+                      <span className="unit-tag">{unidadeMedida}</span>
+                    )}
+                  </label>
                   <input
                     type="number"
                     name="qtd"

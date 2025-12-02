@@ -14,8 +14,8 @@ class ContagemBase(BaseModel):
 
 
 class ContagemCreate(ContagemBase):
-    """Schema para criar contagem - num_contagem é gerado automaticamente"""
-    pass
+    """Schema para criar contagem - num_contagem pode ser informado manualmente"""
+    num_contagem: Optional[int] = Field(None, ge=1)
 
 
 class ContagemResponse(ContagemBase):
