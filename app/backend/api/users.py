@@ -101,6 +101,7 @@ async def criar_usuario(
     # Criar novo usuário
     novo_usuario = User(
         user_name=user_data.user_name,
+        email=user_data.email,
         senha_hash=hash_password(user_data.senha),
         planta=user_data.planta,
         role=user_data.role
@@ -175,6 +176,9 @@ async def atualizar_usuario(
                 )
         usuario.user_name = user_data.user_name
     
+    if user_data.email is not None:
+        usuario.email = user_data.email
+
     if user_data.senha:
         usuario.senha_hash = hash_password(user_data.senha)
     

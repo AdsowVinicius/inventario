@@ -21,17 +21,28 @@ const UserManagement = () => {
   
   const [formData, setFormData] = useState({
     user_name: '',
+    email: '',
     senha: '',
     planta: currentUser.role === 'ENCARREGADO' ? currentUser.planta : 'PS01',
     role: 'CONTADOR'
   });
 
   useEffect(() => {
+    // Verificar se há token válido
+    const token = localStorage.getItem('token');
+    const user = authService.getCurrentUser();
+    
+    if (!token || !user) {
+      window.location.href = '/';
+      return;
+    }
+    
     carregarUsuarios();
   }, []);
 
   const carregarUsuarios = async () => {
     setLoading(true);
+    setMessage(null);
     try {
       const response = await fetch('http://localhost:8000/users/', {
         headers: {
@@ -39,13 +50,25 @@ const UserManagement = () => {
         }
       });
 
+      if (response.status === 401) {
+        // Token inválido ou expirado
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+        return;
+      }
+
       if (response.ok) {
         const data = await response.json();
         setUsuarios(data);
       } else if (response.status === 403) {
         setMessage({ type: 'error', text: 'Você não tem permissão para acessar esta página' });
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        setMessage({ type: 'error', text: errorData.detail || 'Erro ao carregar usuários' });
       }
     } catch (error) {
+      console.error('Erro ao carregar usuários:', error);
       setMessage({ type: 'error', text: 'Erro ao carregar usuários' });
     } finally {
       setLoading(false);
@@ -57,18 +80,19 @@ const UserManagement = () => {
     setUsuarioEditando(null);
     setFormData({
       user_name: '',
+      email: '',
       senha: '',
       planta: currentUser.role === 'ENCARREGADO' ? currentUser.planta : 'PS01',
       role: 'CONTADOR'
     });
     setShowModal(true);
   };
-
   const abrirModalEditar = (usuario) => {
     setModoEdicao(true);
     setUsuarioEditando(usuario);
     setFormData({
       user_name: usuario.user_name,
+      email: usuario.email || '',
       senha: '',
       planta: usuario.planta,
       role: usuario.role
@@ -82,11 +106,13 @@ const UserManagement = () => {
     setUsuarioEditando(null);
     setFormData({
       user_name: '',
+      email: '',
       senha: '',
       planta: currentUser.role === 'ENCARREGADO' ? currentUser.planta : 'PS01',
       role: 'CONTADOR'
     });
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -115,6 +141,14 @@ const UserManagement = () => {
         body: JSON.stringify(body)
       });
 
+      if (response.status === 401) {
+        // Token inválido ou expirado
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+        return;
+      }
+
       if (response.ok) {
         setMessage({ 
           type: 'success', 
@@ -123,10 +157,11 @@ const UserManagement = () => {
         carregarUsuarios();
         fecharModal();
       } else {
-        const data = await response.json();
+        const data = await response.json().catch(() => ({}));
         setMessage({ type: 'error', text: data.detail || 'Erro ao salvar usuário' });
       }
     } catch (error) {
+      console.error('Erro ao salvar usuário:', error);
       setMessage({ type: 'error', text: 'Erro ao salvar usuário' });
     } finally {
       setLoading(false);
@@ -139,6 +174,7 @@ const UserManagement = () => {
     }
 
     setLoading(true);
+    setMessage(null);
     try {
       const response = await fetch(`http://localhost:8000/users/${usuario.id}`, {
         method: 'DELETE',
@@ -147,14 +183,23 @@ const UserManagement = () => {
         }
       });
 
+      if (response.status === 401) {
+        // Token inválido ou expirado
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+        return;
+      }
+
       if (response.ok) {
         setMessage({ type: 'success', text: 'Usuário deletado com sucesso!' });
         carregarUsuarios();
       } else {
-        const data = await response.json();
+        const data = await response.json().catch(() => ({}));
         setMessage({ type: 'error', text: data.detail || 'Erro ao deletar usuário' });
       }
     } catch (error) {
+      console.error('Erro ao deletar usuário:', error);
       setMessage({ type: 'error', text: 'Erro ao deletar usuário' });
     } finally {
       setLoading(false);
@@ -198,6 +243,7 @@ const UserManagement = () => {
             <thead>
               <tr>
                 <th>Usuário</th>
+                <th>Email</th>
                 <th>Planta</th>
                 <th>Perfil</th>
                 <th>Ações</th>
@@ -207,6 +253,7 @@ const UserManagement = () => {
               {usuarios.map(usuario => (
                 <tr key={usuario.id}>
                   <td>{usuario.user_name}</td>
+                  <td>{usuario.email || '-'}</td>
                   <td>{usuario.planta}</td>
                   <td>
                     <span className={`badge badge-${usuario.role.toLowerCase()}`}>
@@ -256,6 +303,16 @@ const UserManagement = () => {
                     required
                     minLength={3}
                     placeholder="Digite o nome do usuário"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Email</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    placeholder="Digite o email do usuário"
                   />
                 </div>
 

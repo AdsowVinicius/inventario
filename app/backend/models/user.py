@@ -26,6 +26,7 @@ class User(Base):
     
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_name = Column(String(100), unique=True, nullable=False, index=True)
+    email = Column(String(255), nullable=True)
     senha_hash = Column(String(255), nullable=False)
     planta = Column(Enum(PlantaEnum), nullable=False)
     role = Column(Enum(RoleEnum), nullable=False, default=RoleEnum.CONTADOR)

@@ -38,8 +38,8 @@ def preview_dados(
         num_contagem=num_contagem
     )
     
-    # Buscar contagens
-    query = db.query(FormsContagem)
+    # Buscar contagens com join do usuário
+    query = db.query(FormsContagem).join(User, FormsContagem.usuario_id == User.id)
     query = aplicar_filtros(query, filtros)
     
     # Contar total
@@ -52,14 +52,16 @@ def preview_dados(
     data = [
         {
             'id': c.id,
-            'planta': c.planta,
-            'num_contagem': c.num_contagem,
-            'zona_inventario': c.zona_inventario,
             'etiqueta_inventario': c.etiqueta_inventario,
             'part_number': c.part_number,
-            'campo': c.campo or '',
+            'planta': c.planta,
             'qtd': c.qtd,
-            'timestamp': c.timestamp.isoformat() if c.timestamp else None
+            'zona_inventario': c.zona_inventario,
+            'num_contagem': c.num_contagem,
+            'created_date': c.timestamp.strftime('%b %d, %Y %I:%M %p') if c.timestamp else '',
+            'modified_date': c.updated_at.strftime('%b %d, %Y %I:%M %p') if c.updated_at else '',
+            'created_by': c.usuario.user_name if c.usuario else '',
+            'created_by_email': c.usuario.email if c.usuario and c.usuario.email else f"{c.usuario.user_name}@inventario.com" if c.usuario else ''
         }
         for c in contagens
     ]
@@ -115,26 +117,30 @@ def exportar_csv(
         num_contagem=num_contagem
     )
     
-    # Buscar contagens
-    query = db.query(FormsContagem)
+    # Buscar contagens com join do usuário
+    query = db.query(FormsContagem).join(User, FormsContagem.usuario_id == User.id)
     query = aplicar_filtros(query, filtros)
     contagens = query.all()
     
     # Preparar dados
     columns = [
-        'planta', 'num_contagem', 'zona_inventario',
-        'etiqueta_inventario', 'part_number', 'campo', 'qtd'
+        'etiqueta_inventario', 'inventario_cod_texto', 'part_number_text',
+        'planta_text', 'quantidade', 'zona_invent_no_text',
+        'created_date', 'modified_date', 'created_by', 'created_by_email'
     ]
     
     data = [
         {
-            'planta': c.planta,
-            'num_contagem': c.num_contagem,
-            'zona_inventario': c.zona_inventario,
-            'etiqueta_inventario': c.etiqueta_inventario,
-            'part_number': c.part_number,
-            'campo': c.campo or '',
-            'qtd': c.qtd
+            'etiqueta_inventario': f"{c.num_contagem}ª CONTAGEM",
+            'inventario_cod_texto': c.etiqueta_inventario,
+            'part_number_text': c.part_number,
+            'planta_text': c.planta,
+            'quantidade': c.qtd,
+            'zona_invent_no_text': c.zona_inventario,
+            'created_date': c.timestamp.strftime('%b %d, %Y %I:%M %p') if c.timestamp else '',
+            'modified_date': c.updated_at.strftime('%b %d, %Y %I:%M %p') if c.updated_at else '',
+            'created_by': c.usuario.user_name if c.usuario else '',
+            'created_by_email': c.usuario.email if c.usuario and c.usuario.email else f"{c.usuario.user_name}@inventario.com" if c.usuario else ''
         }
         for c in contagens
     ]
@@ -157,7 +163,8 @@ def exportar_excel(
     planta: Optional[str] = None,
     zona_inventario: Optional[str] = None,
     etiqueta_inventario: Optional[str] = None,
-    part_number: Optional[int] = None,
+    part_number: Optional[str] = None,
+    num_contagem: Optional[int] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("ADMIN", "ENCARREGADO"))
 ):
@@ -175,26 +182,30 @@ def exportar_excel(
         num_contagem=num_contagem
     )
     
-    # Buscar contagens
-    query = db.query(FormsContagem)
+    # Buscar contagens com join do usuário
+    query = db.query(FormsContagem).join(User, FormsContagem.usuario_id == User.id)
     query = aplicar_filtros(query, filtros)
     contagens = query.all()
     
     # Preparar dados
     columns = [
-        'planta', 'num_contagem', 'zona_inventario',
-        'etiqueta_inventario', 'part_number', 'campo', 'qtd'
+        'etiqueta_inventario', 'inventario_cod_texto', 'part_number_text',
+        'planta_text', 'quantidade', 'zona_invent_no_text',
+        'created_date', 'modified_date', 'created_by', 'created_by_email'
     ]
     
     data = [
         {
-            'planta': c.planta,
-            'num_contagem': c.num_contagem,
-            'zona_inventario': c.zona_inventario,
-            'etiqueta_inventario': c.etiqueta_inventario,
-            'part_number': c.part_number,
-            'campo': c.campo or '',
-            'qtd': c.qtd
+            'etiqueta_inventario': f"{c.num_contagem}ª CONTAGEM",
+            'inventario_cod_texto': c.etiqueta_inventario,
+            'part_number_text': c.part_number,
+            'planta_text': c.planta,
+            'quantidade': c.qtd,
+            'zona_invent_no_text': c.zona_inventario,
+            'created_date': c.timestamp.strftime('%b %d, %Y %I:%M %p') if c.timestamp else '',
+            'modified_date': c.updated_at.strftime('%b %d, %Y %I:%M %p') if c.updated_at else '',
+            'created_by': c.usuario.user_name if c.usuario else '',
+            'created_by_email': c.usuario.email if c.usuario and c.usuario.email else f"{c.usuario.user_name}@inventario.com" if c.usuario else ''
         }
         for c in contagens
     ]

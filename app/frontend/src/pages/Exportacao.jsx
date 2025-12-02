@@ -233,27 +233,31 @@ const Exportacao = () => {
                 <table className="preview-table">
                   <thead>
                     <tr>
-                      <th>Planta</th>
-                      <th>Nº Contagem</th>
-                      <th>Zona</th>
-                      <th>Etiqueta</th>
+                      <th>Etiqueta Inventário</th>
+                      <th>Inventario Cod</th>
                       <th>Part Number</th>
-                      <th>Campo</th>
+                      <th>Planta</th>
                       <th>Quantidade</th>
-                      <th>Data/Hora</th>
+                      <th>Zona Invent No</th>
+                      <th>Data Criação</th>
+                      <th>Data Modificação</th>
+                      <th>Criado Por</th>
+                      <th>Email</th>
                     </tr>
                   </thead>
                   <tbody>
                     {previewData.dados.map((item, idx) => (
                       <tr key={item.id || idx}>
-                        <td>{item.planta}</td>
-                        <td>{item.num_contagem}</td>
-                        <td>{item.zona_inventario}</td>
                         <td>{item.etiqueta_inventario}</td>
-                        <td>{item.part_number}</td>
-                        <td>{item.campo || '-'}</td>
-                        <td>{item.qtd}</td>
-                        <td>{item.timestamp ? new Date(item.timestamp).toLocaleString('pt-BR') : '-'}</td>
+                        <td>{item.inventario_cod_texto}</td>
+                        <td>{item.part_number_text}</td>
+                        <td>{item.planta_text}</td>
+                        <td>{item.quantidade}</td>
+                        <td>{item.zona_invent_no_text}</td>
+                        <td>{item.created_date}</td>
+                        <td>{item.modified_date}</td>
+                        <td>{item.created_by}</td>
+                        <td>{item.created_by_email}</td>
                       </tr>
                     ))}
                   </tbody>

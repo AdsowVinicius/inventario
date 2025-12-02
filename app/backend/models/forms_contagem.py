@@ -18,6 +18,7 @@ class FormsContagem(Base):
     qtd = Column(Float, nullable=False, default=0.0)
     usuario_id = Column(Integer, ForeignKey("user_table.id"), nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
     # Relacionamento com usuário
     usuario = relationship("User", foreign_keys=[usuario_id])
