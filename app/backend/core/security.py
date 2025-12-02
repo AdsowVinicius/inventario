@@ -8,16 +8,47 @@ from sqlalchemy.orm import Session
 from .config import settings
 from .database import get_db
 from models.user import User
+import logging
 
 # Contexto para hash de senha
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Use PBKDF2-SHA256 to avoid bcrypt 72-byte limitations and possible
+# compatibility issues with the installed bcrypt backend.
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+logger = logging.getLogger(__name__)
 
 # Security scheme
 security = HTTPBearer()
 
 
+def _truncate_utf8_to_bytes(s: str, max_bytes: int = 72) -> str:
+    """Trunca uma string preservando limites de caracteres UTF-8.
+
+    Garante que o resultado tenha no máximo `max_bytes` bytes quando codificado em UTF-8.
+    """
+    b = bytearray()
+    for ch in s:
+        chb = ch.encode("utf-8")
+        if len(b) + len(chb) > max_bytes:
+            break
+        b.extend(chb)
+    return b.decode("utf-8", errors="ignore")
+
+
 def hash_password(password: str) -> str:
-    """Gera hash da senha"""
+    """Gera hash da senha.
+
+    Trunca a senha para o limite de 72 bytes do bcrypt (UTF-8) para evitar
+    erros do backend e garantir comportamento consistente.
+    """
+    try:
+        pw_bytes_len = len(password.encode("utf-8"))
+    except Exception:
+        pw_bytes_len = None
+
+    if pw_bytes_len is not None and pw_bytes_len > 72:
+        logger.warning("Password length %s bytes exceeds bcrypt 72-byte limit; truncating.", pw_bytes_len)
+        password = _truncate_utf8_to_bytes(password, 72)
+
     return pwd_context.hash(password)
 
 
