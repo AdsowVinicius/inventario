@@ -42,7 +42,8 @@ def listar_part_numbers(
     """
     query = db.query(
         ItensInventario.num_material.label("part_number"),
-        ItensInventario.txt_descrica_material.label("descricao")
+        ItensInventario.txt_descrica_material.label("descricao"),
+        ItensInventario.und_medida.label("und_medida")
     ).distinct()
     
     if planta:
@@ -53,7 +54,8 @@ def listar_part_numbers(
     return [
         PartNumberResponse(
             part_number=r.part_number,
-            descricao=r.descricao
+            descricao=r.descricao,
+            und_medida=r.und_medida
         )
         for r in results
     ]

@@ -72,10 +72,16 @@ export const itensService = {
 // Serviços de contagem
 export const contagemService = {
   sugerirNumero: async (pn, etiqueta, planta) => {
-    const response = await api.get('/contagem/sugerir', {
-      params: { pn, etiqueta, planta }
-    });
+    const params = { etiqueta, planta };
+    if (pn !== undefined && pn !== null && pn !== '') {
+      params.pn = pn;
+    }
+    const response = await api.get('/contagem/sugerir', { params });
     return response.data;
+  },
+
+  sugerir: async (pn, etiqueta, planta) => {
+    return contagemService.sugerirNumero(pn, etiqueta, planta);
   },
   
   salvar: async (dados) => {

@@ -29,3 +29,4 @@ class PartNumberResponse(BaseModel):
     """Schema para lista de part numbers"""
     part_number: str
     descricao: Optional[str] = None
+    und_medida: Optional[str] = None
