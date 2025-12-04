@@ -41,7 +41,7 @@ class ContagemBase(BaseModel):
     zona_inventario: str = Field(..., min_length=1, max_length=5)
     etiqueta_inventario: str = Field(..., min_length=1, max_length=10)
     part_number: str = Field(..., min_length=1, max_length=50)
-    campo: Optional[str] = Field(None, max_length=100)
+    lote: Optional[str] = Field(None, max_length=100)
     qtd: float = Field(..., ge=0, le=99999999)
     
     @field_validator('planta')
@@ -95,9 +95,9 @@ class ContagemBase(BaseModel):
             raise ValueError('Caracteres inválidos detectados')
         return v
     
-    @field_validator('campo')
+    @field_validator('lote')
     @classmethod
-    def validate_campo(cls, v):
+    def validate_lote(cls, v):
         if v is None:
             return v
         v = sanitize_string(v, 100)
@@ -116,11 +116,11 @@ class ContagemUpdate(BaseModel):
     zona_inventario: Optional[str] = Field(None, max_length=5)
     etiqueta_inventario: Optional[str] = Field(None, max_length=10)
     part_number: Optional[str] = Field(None, max_length=50)
-    campo: Optional[str] = Field(None, max_length=100)
+    lote: Optional[str] = Field(None, max_length=100)
     qtd: Optional[float] = Field(None, ge=0, le=99999999)
     num_contagem: Optional[int] = Field(None, ge=1, le=3)
     
-    @field_validator('zona_inventario', 'etiqueta_inventario', 'part_number', 'campo')
+    @field_validator('zona_inventario', 'etiqueta_inventario', 'part_number', 'lote')
     @classmethod
     def validate_strings(cls, v):
         if v is None:
@@ -149,7 +149,7 @@ class ContagemListResponse(BaseModel):
     zona_inventario: str
     etiqueta_inventario: str
     part_number: str
-    campo: Optional[str] = None
+    lote: Optional[str] = None
     qtd: float
     num_contagem: int
     usuario_id: int

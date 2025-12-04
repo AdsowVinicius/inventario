@@ -158,7 +158,7 @@ def salvar_contagem(
             zona_inventario=contagem.zona_inventario,
             etiqueta_inventario=etiqueta_normalizada,
             part_number=part_number_normalizado,
-            campo=contagem.campo,
+            lote=contagem.lote,
             qtd=contagem.qtd,
             usuario_id=current_user.id
         )
@@ -222,7 +222,7 @@ def listar_contagens(
             zona_inventario=c.zona_inventario,
             etiqueta_inventario=c.etiqueta_inventario,
             part_number=c.part_number,
-            campo=c.campo,
+            lote=c.lote,
             qtd=c.qtd,
             num_contagem=c.num_contagem,
             usuario_id=c.usuario_id,
@@ -286,7 +286,7 @@ def obter_contagem(
         zona_inventario=contagem.zona_inventario,
         etiqueta_inventario=contagem.etiqueta_inventario,
         part_number=contagem.part_number,
-        campo=contagem.campo,
+        lote=contagem.lote,
         qtd=contagem.qtd,
         num_contagem=contagem.num_contagem,
         usuario_id=contagem.usuario_id,
@@ -319,8 +319,8 @@ def atualizar_contagem(
             contagem.part_number = normalize_code(dados.part_number) or dados.part_number
         if dados.zona_inventario is not None:
             contagem.zona_inventario = dados.zona_inventario
-        if dados.campo is not None:
-            contagem.campo = dados.campo
+        if dados.lote is not None:
+            contagem.lote = dados.lote
         if dados.qtd is not None:
             contagem.qtd = dados.qtd
         if dados.num_contagem is not None:

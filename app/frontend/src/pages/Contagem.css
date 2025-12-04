@@ -289,6 +289,26 @@
   font-weight: 600;
 }
 
+/* Campo lote opcional */
+.lote-field {
+  margin-top: 0.5rem;
+}
+
+.lote-field label {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.lote-field input {
+  border-style: dashed;
+  background: #fafafa;
+}
+
+.lote-field input:focus {
+  border-style: solid;
+  background: white;
+}
+
 /* Alerta de Part Number não encontrado */
 .pn-erro-card {
   display: flex;

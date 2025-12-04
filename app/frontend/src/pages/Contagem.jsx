@@ -76,6 +76,7 @@ const Contagem = () => {
   const [formData, setFormData] = useState({
     etiqueta_inventario: '',
     part_number: '',
+    lote: '',
     qtd: ''
   });
   
@@ -220,6 +221,7 @@ const Contagem = () => {
     setFormData({
       etiqueta_inventario: '',
       part_number: '',
+      lote: '',
       qtd: ''
     });
     setMessage(null);
@@ -582,6 +584,7 @@ const Contagem = () => {
       setFormData({
         etiqueta_inventario: '',
         part_number: '',
+        lote: '',
         qtd: ''
       });
       setContagemErrada(false);
@@ -806,6 +809,18 @@ const Contagem = () => {
                       </span>
                     </div>
                   )}
+                </div>
+                
+                <div className="form-group lote-field">
+                  <label>Lote (opcional)</label>
+                  <input
+                    type="text"
+                    name="lote"
+                    value={formData.lote}
+                    onChange={(e) => setFormData(prev => ({ ...prev, lote: e.target.value }))}
+                    placeholder="Informe o lote (se houver)"
+                    maxLength={100}
+                  />
                 </div>
                 
                 <div className="form-group qtd-field">
