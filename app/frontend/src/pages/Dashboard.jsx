@@ -38,18 +38,22 @@ const Dashboard = () => {
 
   const getStatusClass = (status) => {
     switch (status) {
-      case 'divergente': return 'status-divergente';
-      case 'incompleta': return 'status-incompleta';
+      case 'aguardando_contagem_3': return 'status-divergente';
+      case 'aguardando_contagem_2': return 'status-incompleta';
+      case 'aguardando_contagem_1': return 'status-incompleta';
       case 'ok': return 'status-ok';
+      case 'divergente_resolvida': return 'status-ok';
       default: return '';
     }
   };
 
   const getStatusLabel = (status) => {
     switch (status) {
-      case 'divergente': return '⚠️ Divergente';
-      case 'incompleta': return '⏳ Incompleta';
+      case 'aguardando_contagem_3': return '⚠️ Aguardando 3ª Contagem';
+      case 'aguardando_contagem_2': return '⏳ Aguardando 2ª Contagem';
+      case 'aguardando_contagem_1': return '⏳ Aguardando 1ª Contagem';
       case 'ok': return '✅ OK';
+      case 'divergente_resolvida': return '✅ Resolvida';
       default: return status;
     }
   };
@@ -169,11 +173,11 @@ const Dashboard = () => {
           </div>
         </div>
         
-        <div className={`kpi-card ${resumo_divergencias.total_divergentes > 0 ? 'highlight-warning' : 'highlight-success'}`}>
+        <div className={`kpi-card ${(resumo_divergencias.aguardando_contagem_3 || 0) > 0 ? 'highlight-warning' : 'highlight-success'}`}>
           <div className="kpi-icon">⚠️</div>
           <div className="kpi-content">
-            <span className="kpi-value">{formatNumber(resumo_divergencias.total_divergentes)}</span>
-            <span className="kpi-label">Divergências</span>
+            <span className="kpi-value">{formatNumber(resumo_divergencias.aguardando_contagem_3 || 0)}</span>
+            <span className="kpi-label">Aguardando 3ª Contagem</span>
           </div>
         </div>
       </div>
@@ -190,13 +194,13 @@ const Dashboard = () => {
           className={`tab-btn ${activeTab === 'divergentes' ? 'active' : ''}`}
           onClick={() => setActiveTab('divergentes')}
         >
-          ⚠️ Divergências ({divergentes.filter(d => d.status === 'divergente').length})
+          ⚠️ Divergentes ({divergentes.filter(d => d.status === 'aguardando_contagem_3').length})
         </button>
         <button 
           className={`tab-btn ${activeTab === 'incompletas' ? 'active' : ''}`}
           onClick={() => setActiveTab('incompletas')}
         >
-          ⏳ Incompletas ({divergentes.filter(d => d.status === 'incompleta').length})
+          ⏳ Pendentes ({divergentes.filter(d => d.status === 'aguardando_contagem_1' || d.status === 'aguardando_contagem_2').length})
         </button>
         <button 
           className={`tab-btn ${activeTab === 'zonas' ? 'active' : ''}`}
@@ -226,7 +230,7 @@ const Dashboard = () => {
                       <th>Contagens</th>
                       <th>Etiquetas</th>
                       <th>Completas</th>
-                      <th>Divergências</th>
+                      <th>Aguardando 3ª</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -235,9 +239,9 @@ const Dashboard = () => {
                         <td><strong>{p.planta}</strong></td>
                         <td>{formatNumber(p.total_contagens)}</td>
                         <td>{formatNumber(p.etiquetas_unicas)}</td>
-                        <td>{formatNumber(p.contagens_completas)}</td>
-                        <td className={p.divergencias > 0 ? 'td-warning' : 'td-success'}>
-                          {formatNumber(p.divergencias)}
+                        <td className="td-success">{formatNumber(p.contagens_completas)}</td>
+                        <td className={p.divergencias_pendentes > 0 ? 'td-warning' : 'td-success'}>
+                          {formatNumber(p.divergencias_pendentes)}
                         </td>
                       </tr>
                     ))}
@@ -257,14 +261,16 @@ const Dashboard = () => {
                     </span>
                   </div>
                   <div className="indicador">
-                    <span className="indicador-label">Taxa de Divergência</span>
-                    <span className={`indicador-value ${resumo_divergencias.percentual_problemas > 10 ? 'valor-warning' : 'valor-success'}`}>
-                      {resumo_divergencias.percentual_problemas}%
+                    <span className="indicador-label">Aguardando 3ª Contagem</span>
+                    <span className={`indicador-value ${(resumo_divergencias.aguardando_contagem_3 || 0) > 0 ? 'valor-warning' : 'valor-success'}`}>
+                      {resumo_divergencias.aguardando_contagem_3 || 0}
                     </span>
                   </div>
                   <div className="indicador">
-                    <span className="indicador-label">Contagens Incompletas</span>
-                    <span className="indicador-value">{resumo_divergencias.total_incompletas}</span>
+                    <span className="indicador-label">Aguardando 1ª ou 2ª</span>
+                    <span className="indicador-value">
+                      {(resumo_divergencias.aguardando_contagem_1 || 0) + (resumo_divergencias.aguardando_contagem_2 || 0)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -274,14 +280,14 @@ const Dashboard = () => {
 
         {activeTab === 'divergentes' && (
           <div className="divergentes-section">
-            <h3>⚠️ Contagens Divergentes</h3>
+            <h3>⚠️ Divergências - Aguardando 3ª Contagem</h3>
             <p className="section-description">
-              Etiquetas onde as 2 contagens apresentam valores diferentes.
+              Etiquetas onde a 1ª e 2ª contagem apresentam valores diferentes. É necessário realizar a 3ª contagem para desempate.
             </p>
-            {divergentes.filter(d => d.status === 'divergente').length === 0 ? (
+            {divergentes.filter(d => d.status === 'aguardando_contagem_3').length === 0 ? (
               <div className="empty-state">
                 <span className="empty-icon">✅</span>
-                <p>Nenhuma divergência encontrada!</p>
+                <p>Nenhuma divergência pendente!</p>
               </div>
             ) : (
               <div className="table-container">
@@ -294,13 +300,13 @@ const Dashboard = () => {
                       <th>Zona</th>
                       <th>1ª Contagem</th>
                       <th>2ª Contagem</th>
-                      <th>3ª Contagem</th>
                       <th>Diferença</th>
+                      <th>Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {divergentes
-                      .filter(d => d.status === 'divergente')
+                      .filter(d => d.status === 'aguardando_contagem_3')
                       .map((d, idx) => (
                         <tr key={idx} className="row-divergente">
                           <td><strong>{d.etiqueta_inventario}</strong></td>
@@ -315,12 +321,11 @@ const Dashboard = () => {
                             {d.contagem_2 !== null ? formatNumber(d.contagem_2) : '-'}
                             {d.usuario_2 && <small className="usuario-info">({d.usuario_2})</small>}
                           </td>
-                          <td>
-                            {d.contagem_3 !== null ? formatNumber(d.contagem_3) : '-'}
-                            {d.usuario_3 && <small className="usuario-info">({d.usuario_3})</small>}
-                          </td>
                           <td className="td-warning">
                             <strong>{formatNumber(d.diferenca_maxima)}</strong>
+                          </td>
+                          <td>
+                            <span className="status-badge divergente">Precisa 3ª</span>
                           </td>
                         </tr>
                     ))}
@@ -333,14 +338,14 @@ const Dashboard = () => {
 
         {activeTab === 'incompletas' && (
           <div className="incompletas-section">
-            <h3>⏳ Contagens Incompletas</h3>
+            <h3>⏳ Contagens Pendentes</h3>
             <p className="section-description">
-              Etiquetas que ainda não tiveram as 3 contagens realizadas.
+              Etiquetas que ainda não tiveram a 1ª e/ou 2ª contagem realizadas. A 1ª e 2ª contagens são obrigatórias.
             </p>
-            {divergentes.filter(d => d.status === 'incompleta').length === 0 ? (
+            {divergentes.filter(d => d.status === 'aguardando_contagem_1' || d.status === 'aguardando_contagem_2').length === 0 ? (
               <div className="empty-state">
                 <span className="empty-icon">✅</span>
-                <p>Todas as contagens estão completas!</p>
+                <p>Todas as contagens obrigatórias foram realizadas!</p>
               </div>
             ) : (
               <div className="table-container">
@@ -353,13 +358,12 @@ const Dashboard = () => {
                       <th>Zona</th>
                       <th>1ª Contagem</th>
                       <th>2ª Contagem</th>
-                      <th>3ª Contagem</th>
                       <th>Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {divergentes
-                      .filter(d => d.status === 'incompleta')
+                      .filter(d => d.status === 'aguardando_contagem_1' || d.status === 'aguardando_contagem_2')
                       .map((d, idx) => (
                         <tr key={idx} className="row-incompleta">
                           <td><strong>{d.etiqueta_inventario}</strong></td>
@@ -368,10 +372,9 @@ const Dashboard = () => {
                           <td>{d.zona_inventario}</td>
                           <td>{d.contagem_1 !== null ? formatNumber(d.contagem_1) : <span className="pendente">Pendente</span>}</td>
                           <td>{d.contagem_2 !== null ? formatNumber(d.contagem_2) : <span className="pendente">Pendente</span>}</td>
-                          <td>{d.contagem_3 !== null ? formatNumber(d.contagem_3) : <span className="pendente">Pendente</span>}</td>
                           <td>
-                            <span className="status-badge incompleta">
-                              {[d.contagem_1, d.contagem_2, d.contagem_3].filter(c => c !== null).length}/3
+                            <span className={`status-badge ${d.status === 'aguardando_contagem_1' ? 'pendente-1' : 'pendente-2'}`}>
+                              {d.status === 'aguardando_contagem_1' ? 'Falta 1ª' : 'Falta 2ª'}
                             </span>
                           </td>
                         </tr>
@@ -412,16 +415,19 @@ const Dashboard = () => {
                       </div>
                       <div className="zona-stat">
                         <span className="stat-value success">{zona.contagens_completas}</span>
-                        <span className="stat-label">Completas</span>
+                        <span className="stat-label">OK</span>
                       </div>
                       <div className="zona-stat">
-                        <span className="stat-value warning">{zona.contagens_parciais}</span>
+                        <span className="stat-value warning">{zona.aguardando_3a || 0}</span>
+                        <span className="stat-label">Aguard. 3ª</span>
+                      </div>
+                      <div className="zona-stat">
+                        <span className="stat-value">{zona.contagens_parciais}</span>
                         <span className="stat-label">Parciais</span>
                       </div>
-                      <div className="zona-stat">
-                        <span className="stat-value">{zona.percentual_completo}%</span>
-                        <span className="stat-label">Progresso</span>
-                      </div>
+                    </div>
+                    <div className="zona-percent">
+                      <span>{zona.percentual_completo}% Completo</span>
                     </div>
                   </div>
                 ))}

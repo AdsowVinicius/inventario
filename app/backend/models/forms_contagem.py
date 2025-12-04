@@ -5,7 +5,7 @@ from core.database import Base
 
 
 class FormsContagem(Base):
-    """Model de contagem (sem lote)"""
+    """Model de contagem de inventário"""
     __tablename__ = "forms_contagem"
     
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -14,7 +14,7 @@ class FormsContagem(Base):
     zona_inventario = Column(String(50), nullable=False, index=True)
     etiqueta_inventario = Column(String(50), nullable=False, index=True)
     part_number = Column(String(50), nullable=False, index=True)
-    campo = Column(String(100), nullable=True)
+    lote = Column(String(100), nullable=True)
     qtd = Column(Float, nullable=False, default=0.0)
     usuario_id = Column(Integer, ForeignKey("user_table.id"), nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)

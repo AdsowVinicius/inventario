@@ -49,8 +49,9 @@ class ProgressoZonaResponse(BaseModel):
     zona: str
     planta: str
     etiquetas_contadas: int
-    contagens_completas: int  # etiquetas com 3 contagens
-    contagens_parciais: int   # etiquetas com 1-2 contagens
+    contagens_completas: int  # etiquetas com 1 e 2 sem divergência, ou 1, 2 e 3 com divergência resolvida
+    contagens_parciais: int   # etiquetas que ainda precisam de contagens
+    aguardando_3a: int        # etiquetas divergentes aguardando 3ª contagem
     percentual_completo: float
     
 
@@ -65,8 +66,9 @@ class ContagemPorPlantaResponse(BaseModel):
     planta: str
     total_contagens: int
     etiquetas_unicas: int
-    contagens_completas: int
-    divergencias: int
+    contagens_completas: int  # 1+2 OK ou 1+2+3 resolvidas
+    divergencias_pendentes: int  # divergências aguardando 3ª contagem
+    divergencias_resolvidas: int  # divergências com 3ª contagem
 
 
 class DashboardCompleto(BaseModel):
@@ -156,8 +158,18 @@ def obter_contagens_divergentes(
 ):
     """
     Identifica contagens divergentes.
-    Uma contagem é considerada divergente quando 2 ou mais contagens
-    apresentam valores diferentes (diferença > 0).
+    
+    Lógica de contagem:
+    - Contagem 1 e 2 são OBRIGATÓRIAS
+    - Se contagem 1 e 2 são IGUAIS → etiqueta OK (não precisa 3ª)
+    - Se contagem 1 e 2 são DIFERENTES → precisa 3ª contagem para desempate
+    
+    Status:
+    - "aguardando_contagem_1": só precisa da 1ª contagem
+    - "aguardando_contagem_2": tem 1ª, precisa da 2ª
+    - "aguardando_contagem_3": 1ª e 2ª divergentes, precisa da 3ª para desempate
+    - "ok": 1ª e 2ª iguais, OU 1ª, 2ª e 3ª finalizadas
+    - "divergente_resolvida": tinha divergência mas 3ª contagem resolveu
     """
     verificar_acesso_dashboard(current_user)
     
@@ -179,7 +191,7 @@ def obter_contagens_divergentes(
     divergentes = []
     
     for etq in etiquetas:
-        # Buscar as 3 contagens desta etiqueta
+        # Buscar as contagens desta etiqueta
         contagens = db.query(FormsContagem).filter(
             FormsContagem.etiqueta_inventario == etq.etiqueta_inventario,
             FormsContagem.planta == etq.planta
@@ -199,22 +211,29 @@ def obter_contagens_divergentes(
         qtd2 = c2.qtd if c2 else None
         qtd3 = c3.qtd if c3 else None
         
-        # Calcular divergência
-        valores = [v for v in [qtd1, qtd2, qtd3] if v is not None]
-        
-        if len(valores) < 2:
-            status = "incompleta"
+        # Determinar status baseado na nova lógica
+        if qtd1 is None:
+            status = "aguardando_contagem_1"
+            diferenca = 0
+        elif qtd2 is None:
+            status = "aguardando_contagem_2"
+            diferenca = 0
+        elif qtd1 == qtd2:
+            # Contagem 1 e 2 são iguais - OK, não precisa 3ª
+            status = "ok"
             diferenca = 0
         else:
-            # 2 ou mais contagens - verificar se há divergência
-            diferenca = max(valores) - min(valores)
-            if diferenca > 0:
-                status = "divergente"
+            # Contagem 1 e 2 são diferentes
+            diferenca = abs(qtd1 - qtd2)
+            if qtd3 is None:
+                # Precisa da 3ª contagem para desempate
+                status = "aguardando_contagem_3"
             else:
-                status = "ok"
+                # Tem 3ª contagem - divergência resolvida
+                status = "divergente_resolvida"
         
-        # Adicionar apenas divergentes ou incompletas
-        if status in ["divergente", "incompleta"]:
+        # Adicionar apenas os que precisam de ação
+        if status in ["aguardando_contagem_1", "aguardando_contagem_2", "aguardando_contagem_3"]:
             divergentes.append(ContagemDivergenteResponse(
                 etiqueta_inventario=etq.etiqueta_inventario,
                 part_number=etq.part_number,
@@ -230,8 +249,9 @@ def obter_contagens_divergentes(
                 diferenca_maxima=diferenca
             ))
     
-    # Ordenar por diferença (maiores primeiro)
-    divergentes.sort(key=lambda x: (-x.diferenca_maxima, x.status))
+    # Ordenar: primeiro os que precisam da 3ª (divergentes), depois por diferença
+    status_ordem = {"aguardando_contagem_3": 0, "aguardando_contagem_2": 1, "aguardando_contagem_1": 2}
+    divergentes.sort(key=lambda x: (status_ordem.get(x.status, 99), -x.diferenca_maxima))
     
     return divergentes[:limite]
 
@@ -242,7 +262,13 @@ def obter_progresso_zonas(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Retorna o progresso de contagem por zona"""
+    """
+    Retorna o progresso de contagem por zona.
+    
+    Uma etiqueta é considerada "completa" quando:
+    - Tem contagem 1 e 2 com valores IGUAIS (não precisa 3ª), OU
+    - Tem contagem 1, 2 e 3 (divergência resolvida)
+    """
     verificar_acesso_dashboard(current_user)
     
     # Buscar zonas únicas
@@ -270,12 +296,31 @@ def obter_progresso_zonas(
         for c in contagens:
             key = c.etiqueta_inventario
             if key not in etiquetas_contagens:
-                etiquetas_contagens[key] = set()
-            etiquetas_contagens[key].add(c.num_contagem)
+                etiquetas_contagens[key] = {}
+            etiquetas_contagens[key][c.num_contagem] = c.qtd
         
         etiquetas_contadas = len(etiquetas_contagens)
-        contagens_completas = sum(1 for nums in etiquetas_contagens.values() if len(nums) >= 3)
-        contagens_parciais = etiquetas_contadas - contagens_completas
+        contagens_completas = 0
+        contagens_parciais = 0
+        aguardando_3a = 0
+        
+        for etq, nums in etiquetas_contagens.items():
+            qtd1 = nums.get(1)
+            qtd2 = nums.get(2)
+            qtd3 = nums.get(3)
+            
+            if qtd1 is None or qtd2 is None:
+                # Falta contagem 1 ou 2 - parcial
+                contagens_parciais += 1
+            elif qtd1 == qtd2:
+                # 1 e 2 iguais - completa, não precisa 3ª
+                contagens_completas += 1
+            elif qtd3 is not None:
+                # 1 e 2 diferentes mas tem 3ª - completa (resolvida)
+                contagens_completas += 1
+            else:
+                # 1 e 2 diferentes sem 3ª - aguardando 3ª contagem
+                aguardando_3a += 1
         
         percentual = (contagens_completas / etiquetas_contadas * 100) if etiquetas_contadas > 0 else 0
         
@@ -285,6 +330,7 @@ def obter_progresso_zonas(
             etiquetas_contadas=etiquetas_contadas,
             contagens_completas=contagens_completas,
             contagens_parciais=contagens_parciais,
+            aguardando_3a=aguardando_3a,
             percentual_completo=round(percentual, 1)
         ))
     
@@ -336,7 +382,14 @@ def obter_contagens_por_planta(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Retorna contagens agrupadas por planta com análise de divergências"""
+    """
+    Retorna contagens agrupadas por planta com análise de divergências.
+    
+    Lógica:
+    - Completa: 1+2 iguais OU 1+2+3 (divergência resolvida)
+    - Divergência pendente: 1+2 diferentes sem 3ª
+    - Divergência resolvida: 1+2 diferentes com 3ª
+    """
     verificar_acesso_dashboard(current_user)
     
     # Plantas únicas
@@ -353,32 +406,44 @@ def obter_contagens_por_planta(
         etiquetas = set(c.etiqueta_inventario for c in contagens)
         etiquetas_unicas = len(etiquetas)
         
-        # Agrupar por etiqueta para calcular completas e divergências
+        # Agrupar por etiqueta para calcular status
         etiqueta_map = {}
         for c in contagens:
             key = c.etiqueta_inventario
             if key not in etiqueta_map:
-                etiqueta_map[key] = []
-            etiqueta_map[key].append(c)
+                etiqueta_map[key] = {}
+            etiqueta_map[key][c.num_contagem] = c.qtd
         
         contagens_completas = 0
-        divergencias = 0
+        divergencias_pendentes = 0
+        divergencias_resolvidas = 0
         
-        for etq, conts in etiqueta_map.items():
-            nums = set(c.num_contagem for c in conts)
-            if len(nums) >= 3:
+        for etq, nums in etiqueta_map.items():
+            qtd1 = nums.get(1)
+            qtd2 = nums.get(2)
+            qtd3 = nums.get(3)
+            
+            if qtd1 is None or qtd2 is None:
+                # Ainda não tem 1 e 2 - não conta como nada ainda
+                pass
+            elif qtd1 == qtd2:
+                # 1 e 2 iguais - completa
                 contagens_completas += 1
-                # Verificar divergência
-                qtds = [c.qtd for c in conts]
-                if max(qtds) != min(qtds):
-                    divergencias += 1
+            elif qtd3 is not None:
+                # 1 e 2 diferentes com 3ª - resolvida
+                contagens_completas += 1
+                divergencias_resolvidas += 1
+            else:
+                # 1 e 2 diferentes sem 3ª - pendente
+                divergencias_pendentes += 1
         
         resultado.append(ContagemPorPlantaResponse(
             planta=planta,
             total_contagens=total,
             etiquetas_unicas=etiquetas_unicas,
             contagens_completas=contagens_completas,
-            divergencias=divergencias
+            divergencias_pendentes=divergencias_pendentes,
+            divergencias_resolvidas=divergencias_resolvidas
         ))
     
     resultado.sort(key=lambda x: x.total_contagens, reverse=True)
@@ -410,15 +475,18 @@ def obter_dashboard_completo(
     # Contagens por planta
     contagens_planta = obter_contagens_por_planta(db, current_user)
     
-    # Resumo de divergências
-    total_divergentes = len([d for d in divergentes if d.status == "divergente"])
-    total_incompletas = len([d for d in divergentes if d.status == "incompleta"])
+    # Resumo de divergências com nova lógica
+    aguardando_1 = len([d for d in divergentes if d.status == "aguardando_contagem_1"])
+    aguardando_2 = len([d for d in divergentes if d.status == "aguardando_contagem_2"])
+    aguardando_3 = len([d for d in divergentes if d.status == "aguardando_contagem_3"])
     
     resumo_divergencias = {
-        "total_divergentes": total_divergentes,
-        "total_incompletas": total_incompletas,
-        "percentual_problemas": round(
-            (total_divergentes + total_incompletas) / kpis.total_etiquetas * 100, 1
+        "aguardando_contagem_1": aguardando_1,
+        "aguardando_contagem_2": aguardando_2,
+        "aguardando_contagem_3": aguardando_3,
+        "total_pendentes": aguardando_1 + aguardando_2 + aguardando_3,
+        "percentual_pendentes": round(
+            (aguardando_1 + aguardando_2 + aguardando_3) / kpis.total_etiquetas * 100, 1
         ) if kpis.total_etiquetas > 0 else 0
     }
     

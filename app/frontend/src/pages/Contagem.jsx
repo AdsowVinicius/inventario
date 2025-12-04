@@ -70,6 +70,9 @@ const Contagem = () => {
     zona_inventario: ''
   });
   
+  // Contagem selecionada pelo usuário (1, 2 ou 3) - escolhida na etapa 1
+  const [contagemSelecionada, setContagemSelecionada] = useState(1);
+  
   const [formData, setFormData] = useState({
     etiqueta_inventario: '',
     part_number: '',
@@ -221,6 +224,7 @@ const Contagem = () => {
     });
     setMessage(null);
     setContagensRealizadas(0);
+    setContagemSelecionada(1);
     setNumContagem(1);
     setNumeroSugerido(1);
     setContagemErrada(false);
@@ -544,13 +548,14 @@ const Contagem = () => {
     
     try {
       // Combinar dados da zona com dados da contagem
+      // Sempre envia o num_contagem selecionado pelo usuário
       const dadosCompletos = {
         ...zonaAtual,
         ...formData,
         qtd: qtdNum,
         etiqueta_inventario: normalizeCode(formData.etiqueta_inventario) || formData.etiqueta_inventario,
         part_number: formData.part_number ? (normalizeCode(formData.part_number) || formData.part_number) : '',
-        ...(contagemErrada ? { num_contagem: numContagem } : {})
+        num_contagem: contagemSelecionada
       };
       
       const response = await contagemService.salvar(dadosCompletos);
@@ -561,7 +566,7 @@ const Contagem = () => {
         etiqueta: dadosCompletos.etiqueta_inventario,
         part_number: dadosCompletos.part_number,
         descricao: itemSelecionado?.descricao || '',
-        num_contagem: response.mensagem.match(/#(\d+)/)?.[1] || numContagem,
+        num_contagem: contagemSelecionada,
         timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
       }, ...prev]);
       
@@ -617,10 +622,10 @@ const Contagem = () => {
       <div className="contagem-container">
         <div className="contagem-card">
           {etapa === 1 ? (
-            // ETAPA 1: Selecionar Zona
+            // ETAPA 1: Selecionar Zona e Contagem
             <>
-              <h2>📍 Etapa 1: Selecionar Zona de Inventário</h2>
-              <p className="subtitle">Sua planta: <strong>{plantaUsuario}</strong> - Selecione a zona onde realizará as contagens</p>
+              <h2>📍 Etapa 1: Selecionar Zona e Contagem</h2>
+              <p className="subtitle">Sua planta: <strong>{plantaUsuario}</strong> - Selecione a zona e qual contagem você irá realizar</p>
               
               <form onSubmit={iniciarContagens} className="contagem-form">
                 <div className="form-group">
@@ -641,6 +646,33 @@ const Contagem = () => {
                   </select>
                 </div>
                 
+                <div className="form-group">
+                  <label>Qual contagem você irá realizar? *</label>
+                  <div className="contagem-selection-buttons">
+                    <button
+                      type="button"
+                      className={`contagem-select-btn ${contagemSelecionada === 1 ? 'selected' : ''}`}
+                      onClick={() => setContagemSelecionada(1)}
+                    >
+                      1ª Contagem
+                    </button>
+                    <button
+                      type="button"
+                      className={`contagem-select-btn ${contagemSelecionada === 2 ? 'selected' : ''}`}
+                      onClick={() => setContagemSelecionada(2)}
+                    >
+                      2ª Contagem
+                    </button>
+                    <button
+                      type="button"
+                      className={`contagem-select-btn ${contagemSelecionada === 3 ? 'selected' : ''}`}
+                      onClick={() => setContagemSelecionada(3)}
+                    >
+                      3ª Contagem
+                    </button>
+                  </div>
+                </div>
+                
                 <button 
                   type="submit" 
                   className="btn-submit"
@@ -654,9 +686,9 @@ const Contagem = () => {
             <>
               <div className="zona-header">
                 <div className="zona-info">
-                  <h2>📝 Contagens na Zona</h2>
+                  <h2>📝 Realizando {contagemSelecionada}ª Contagem</h2>
                   <div className="zona-badge">
-                    <strong>Planta:</strong> {zonaAtual.planta} | <strong>Zona:</strong> {zonaAtual.zona_inventario} - {zonasDisponiveis.find(z => z.codigo === zonaAtual.zona_inventario)?.descricao || ''}
+                    <strong>Planta:</strong> {zonaAtual.planta} | <strong>Zona:</strong> {zonaAtual.zona_inventario} - {zonasDisponiveis.find(z => z.codigo === zonaAtual.zona_inventario)?.descricao || ''} | <strong className="contagem-badge">Contagem {contagemSelecionada}</strong>
                   </div>
                   <div className="contagens-counter">
                     ✅ Contagens realizadas: <strong>{contagensRealizadas}</strong>
@@ -774,30 +806,6 @@ const Contagem = () => {
                       </span>
                     </div>
                   )}
-                </div>
-                
-                <div className="contagem-numero-row">
-                  <label>Número da Contagem</label>
-                  <div className="contagem-numero-compact">
-                    <input
-                      type="number"
-                      name="num_contagem"
-                      value={numContagem}
-                      onChange={(e) => handleNumeroContagemChange(e.target.value)}
-                      min="1"
-                      step="1"
-                      disabled={!contagemErrada}
-                    />
-                    <span className="sugestao-badge-compact">#{numeroSugerido}</span>
-                    <label className="checkbox-compact">
-                      <input
-                        type="checkbox"
-                        checked={contagemErrada}
-                        onChange={handleContagemErradaChange}
-                      />
-                      <span className="checkbox-text">Corrigir</span>
-                    </label>
-                  </div>
                 </div>
                 
                 <div className="form-group qtd-field">
