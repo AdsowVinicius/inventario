@@ -99,8 +99,8 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 Acesse:
-- API: http://localhost:8000
-- Documentação: http://localhost:8000/docs
+- API: http://10.200.10.57:8000
+- Documentação: http://10.200.10.57:8000/docs
 
 ### Frontend
 
@@ -221,8 +221,8 @@ Acesse: http://localhost:3000
 ## 📝 Desenvolvimento
 
 ### Acessar documentação da API
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+- Swagger UI: http://10.200.10.57:8000/docs
+- ReDoc: http://10.200.10.57:8000/redoc
 
 ### Criar novos usuários
 

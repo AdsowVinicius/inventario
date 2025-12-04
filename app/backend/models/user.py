@@ -16,7 +16,7 @@ class PlantaEnum(str, enum.Enum):
 class RoleEnum(str, enum.Enum):
     """Enum para papéis de usuário"""
     ADMIN = "ADMIN"
-    ENCARREGADO = "ENCARREGADO"
+    CONTROLADORIA = "CONTROLADORIA"
     CONTADOR = "CONTADOR"
 
 
@@ -27,6 +27,8 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_name = Column(String(100), unique=True, nullable=False, index=True)
     email = Column(String(255), nullable=True)
+    nome_completo = Column(String(60), nullable=True)
+    departamento = Column(String(60), nullable=True)
     senha_hash = Column(String(255), nullable=False)
     planta = Column(Enum(PlantaEnum), nullable=False)
     role = Column(Enum(RoleEnum), nullable=False, default=RoleEnum.CONTADOR)

@@ -22,12 +22,12 @@ def preview_dados(
     num_contagem: Optional[int] = None,
     limit: int = Query(default=100, le=1000),
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("ADMIN", "ENCARREGADO"))
+    current_user: User = Depends(require_role("ADMIN", "CONTROLADORIA"))
 ):
     """
     Preview dos dados que serão exportados
     
-    Disponível apenas para: admin e encarregado
+    Disponível apenas para: admin e controladoria
     """
     # Criar filtros
     filtros = ContagemFiltros(
@@ -48,15 +48,20 @@ def preview_dados(
     # Limitar resultados para preview
     contagens = query.limit(limit).all()
     
-    # Preparar dados
+    # Preparar dados com nomes compatíveis com o frontend
     data = [
         {
             'id': c.id,
-            'etiqueta_inventario': c.etiqueta_inventario,
+            'etiqueta_inventario': f"{c.num_contagem}ª CONTAGEM",
+            'inventario_cod_texto': c.etiqueta_inventario,
             'part_number': c.part_number,
+            'part_number_text': c.part_number,
             'planta': c.planta,
+            'planta_text': c.planta,
             'qtd': c.qtd,
+            'quantidade': c.qtd,
             'zona_inventario': c.zona_inventario,
+            'zona_invent_no_text': c.zona_inventario,
             'num_contagem': c.num_contagem,
             'created_date': c.timestamp.strftime('%b %d, %Y %I:%M %p') if c.timestamp else '',
             'modified_date': c.updated_at.strftime('%b %d, %Y %I:%M %p') if c.updated_at else '',
@@ -101,12 +106,12 @@ def exportar_csv(
     part_number: Optional[str] = None,
     num_contagem: Optional[int] = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("ADMIN", "ENCARREGADO"))
+    current_user: User = Depends(require_role("ADMIN", "CONTROLADORIA"))
 ):
     """
     Exporta contagens para CSV
     
-    Disponível apenas para: admin e encarregado
+    Disponível apenas para: admin e controladoria
     """
     # Criar filtros
     filtros = ContagemFiltros(
@@ -166,12 +171,12 @@ def exportar_excel(
     part_number: Optional[str] = None,
     num_contagem: Optional[int] = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("ADMIN", "ENCARREGADO"))
+    current_user: User = Depends(require_role("ADMIN", "CONTROLADORIA"))
 ):
     """
     Exporta contagens para Excel
     
-    Disponível apenas para: admin e encarregado
+    Disponível apenas para: admin e controladoria
     """
     # Criar filtros
     filtros = ContagemFiltros(

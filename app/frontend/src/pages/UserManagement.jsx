@@ -6,7 +6,7 @@ import './UserManagement.css';
 const PLANTAS = ['PS01', 'PS02', 'PS03', 'PS05', 'PS09', 'PB82'];
 const ROLES = [
   { value: 'CONTADOR', label: 'Contador' },
-  { value: 'ENCARREGADO', label: 'Encarregado' },
+  { value: 'CONTROLADORIA', label: 'Controladoria' },
   { value: 'ADMIN', label: 'Administrador' }
 ];
 
@@ -22,8 +22,10 @@ const UserManagement = () => {
   const [formData, setFormData] = useState({
     user_name: '',
     email: '',
+    nome_completo: '',
+    departamento: '',
     senha: '',
-    planta: currentUser.role === 'ENCARREGADO' ? currentUser.planta : 'PS01',
+    planta: currentUser.role === 'CONTROLADORIA' ? currentUser.planta : 'PS01',
     role: 'CONTADOR'
   });
 
@@ -44,7 +46,7 @@ const UserManagement = () => {
     setLoading(true);
     setMessage(null);
     try {
-      const response = await fetch('http://localhost:8000/users/', {
+      const response = await fetch('http://10.200.10.57:8000/users/', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -81,8 +83,10 @@ const UserManagement = () => {
     setFormData({
       user_name: '',
       email: '',
+      nome_completo: '',
+      departamento: '',
       senha: '',
-      planta: currentUser.role === 'ENCARREGADO' ? currentUser.planta : 'PS01',
+      planta: currentUser.role === 'CONTROLADORIA' ? currentUser.planta : 'PS01',
       role: 'CONTADOR'
     });
     setShowModal(true);
@@ -93,6 +97,8 @@ const UserManagement = () => {
     setFormData({
       user_name: usuario.user_name,
       email: usuario.email || '',
+      nome_completo: usuario.nome_completo || '',
+      departamento: usuario.departamento || '',
       senha: '',
       planta: usuario.planta,
       role: usuario.role
@@ -107,6 +113,8 @@ const UserManagement = () => {
     setFormData({
       user_name: '',
       email: '',
+      nome_completo: '',
+      departamento: '',
       senha: '',
       planta: currentUser.role === 'ENCARREGADO' ? currentUser.planta : 'PS01',
       role: 'CONTADOR'
@@ -121,8 +129,8 @@ const UserManagement = () => {
 
     try {
       const url = modoEdicao 
-        ? `http://localhost:8000/users/${usuarioEditando.id}`
-        : 'http://localhost:8000/users/';
+        ? `http://10.200.10.57:8000/users/${usuarioEditando.id}`
+        : 'http://10.200.10.57:8000/users/';
       
       const method = modoEdicao ? 'PUT' : 'POST';
       
@@ -176,7 +184,7 @@ const UserManagement = () => {
     setLoading(true);
     setMessage(null);
     try {
-      const response = await fetch(`http://localhost:8000/users/${usuario.id}`, {
+      const response = await fetch(`http://10.200.10.57:8000/users/${usuario.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -243,7 +251,9 @@ const UserManagement = () => {
             <thead>
               <tr>
                 <th>Usuário</th>
+                <th>Nome Completo</th>
                 <th>Email</th>
+                <th>Departamento</th>
                 <th>Planta</th>
                 <th>Perfil</th>
                 <th>Ações</th>
@@ -253,7 +263,9 @@ const UserManagement = () => {
               {usuarios.map(usuario => (
                 <tr key={usuario.id}>
                   <td>{usuario.user_name}</td>
+                  <td>{usuario.nome_completo || '-'}</td>
                   <td>{usuario.email || '-'}</td>
+                  <td>{usuario.departamento || '-'}</td>
                   <td>{usuario.planta}</td>
                   <td>
                     <span className={`badge badge-${usuario.role.toLowerCase()}`}>
@@ -307,12 +319,34 @@ const UserManagement = () => {
                 </div>
 
                 <div className="form-group">
+                  <label>Nome Completo</label>
+                  <input
+                    type="text"
+                    value={formData.nome_completo}
+                    onChange={(e) => setFormData({...formData, nome_completo: e.target.value})}
+                    maxLength={60}
+                    placeholder="Digite o nome completo"
+                  />
+                </div>
+
+                <div className="form-group">
                   <label>Email</label>
                   <input
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                     placeholder="Digite o email do usuário"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Departamento</label>
+                  <input
+                    type="text"
+                    value={formData.departamento}
+                    onChange={(e) => setFormData({...formData, departamento: e.target.value})}
+                    maxLength={60}
+                    placeholder="Digite o departamento"
                   />
                 </div>
 

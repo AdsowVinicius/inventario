@@ -8,23 +8,31 @@ from openpyxl.styles import Font, Alignment, PatternFill
 def generate_csv(data: List[Dict[str, Any]], columns: List[str]) -> str:
     """Gera arquivo CSV a partir dos dados"""
     output = io.StringIO()
-    writer = csv.DictWriter(output, fieldnames=columns)
     
     # Cabeçalhos traduzidos
     headers_pt = {
-        'planta': 'Planta',
-        'num_contagem': 'Número Contagem',
-        'zona_inventario': 'Zona Inventário',
         'etiqueta_inventario': 'Etiqueta',
-        'part_number': 'Part Number',
-        'campo': 'Campo',
-        'qtd': 'Quantidade'
+        'inventario_cod_texto': 'Inventario Cod',
+        'part_number_text': 'Part Number',
+        'planta_text': 'Planta',
+        'quantidade': 'Quantidade',
+        'zona_invent_no_text': 'Zona Inventário',
+        'created_date': 'Data Criação',
+        'modified_date': 'Data Modificação',
+        'created_by': 'Criado Por',
+        'created_by_email': 'Email'
     }
     
-    writer.writerow(headers_pt)
+    writer = csv.DictWriter(output, fieldnames=columns, extrasaction='ignore')
+    
+    # Escrever cabeçalho traduzido
+    header_row = {col: headers_pt.get(col, col) for col in columns}
+    writer.writerow(header_row)
     
     for row in data:
-        writer.writerow(row)
+        # Filtrar apenas as colunas especificadas
+        filtered_row = {col: row.get(col, '') for col in columns}
+        writer.writerow(filtered_row)
     
     return output.getvalue()
 
@@ -37,13 +45,16 @@ def generate_excel(data: List[Dict[str, Any]], columns: List[str]) -> bytes:
     
     # Cabeçalhos traduzidos
     headers_pt = {
-        'planta': 'Planta',
-        'num_contagem': 'Número Contagem',
-        'zona_inventario': 'Zona Inventário',
         'etiqueta_inventario': 'Etiqueta',
-        'part_number': 'Part Number',
-        'campo': 'Campo',
-        'qtd': 'Quantidade'
+        'inventario_cod_texto': 'Inventario Cod',
+        'part_number_text': 'Part Number',
+        'planta_text': 'Planta',
+        'quantidade': 'Quantidade',
+        'zona_invent_no_text': 'Zona Inventário',
+        'created_date': 'Data Criação',
+        'modified_date': 'Data Modificação',
+        'created_by': 'Criado Por',
+        'created_by_email': 'Email'
     }
     
     # Estilo do cabeçalho

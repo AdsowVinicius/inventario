@@ -7,6 +7,8 @@ class UserBase(BaseModel):
     """Schema base de usuário"""
     user_name: str = Field(..., min_length=3, max_length=100)
     email: Optional[str] = Field(None, max_length=255)
+    nome_completo: Optional[str] = Field(None, max_length=60)
+    departamento: Optional[str] = Field(None, max_length=60)
     planta: PlantaEnum
     role: RoleEnum = RoleEnum.CONTADOR
 
@@ -28,6 +30,8 @@ class UserUpdate(BaseModel):
     """Schema para atualizar usuário"""
     user_name: Optional[str] = Field(None, min_length=3, max_length=100)
     email: Optional[str] = Field(None, max_length=255)
+    nome_completo: Optional[str] = Field(None, max_length=60)
+    departamento: Optional[str] = Field(None, max_length=60)
     senha: Optional[str] = Field(None, min_length=6)
     planta: Optional[PlantaEnum] = None
     role: Optional[RoleEnum] = None

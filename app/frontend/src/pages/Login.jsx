@@ -32,8 +32,13 @@ const Login = () => {
       localStorage.setItem('token', response.access_token);
       localStorage.setItem('user', JSON.stringify(response.user));
       
-      // Redirecionar para contagem
-      navigate('/contagem');
+      // Redirecionar baseado na role
+      // CONTROLADORIA e ADMIN vão para dashboard
+      if (response.user.role === 'CONTROLADORIA' || response.user.role === 'ADMIN') {
+        navigate('/dashboard');
+      } else {
+        navigate('/contagem');
+      }
     } catch (err) {
       setError(err.response?.data?.detail || 'Erro ao fazer login. Verifique suas credenciais.');
     } finally {
@@ -45,7 +50,8 @@ const Login = () => {
     <div className="login-container">
       <div className="login-box">
         <div className="login-header">
-          <h1>📦 Sistema de Inventário</h1>
+          <img src="/logo.jpeg" alt="PSC" className="login-logo" />
+          <h1>PSCInventário</h1>
           <p>Faça login para continuar</p>
         </div>
         
@@ -93,7 +99,7 @@ const Login = () => {
         </form>
         
         <div className="login-footer">
-          <small>Sistema de Inventário v1.0</small>
+          <small>PSCInventário v1.0</small>
         </div>
       </div>
     </div>

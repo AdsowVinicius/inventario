@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from core.config import settings
 from core.database import init_db
-from api import auth_router, itens_router, contagem_router, exportacao_router, users_router
+from api import auth_router, itens_router, contagem_router, exportacao_router, users_router, dashboard_router
 
 # Criar aplicação FastAPI
 app = FastAPI(
@@ -26,6 +26,7 @@ app.include_router(itens_router)
 app.include_router(contagem_router)
 app.include_router(exportacao_router)
 app.include_router(users_router)
+app.include_router(dashboard_router)
 
 
 @app.on_event("startup")
@@ -34,6 +35,11 @@ def on_startup():
     print("🚀 Inicializando aplicação...")
     print("📦 Criando tabelas no banco de dados...")
     init_db()
+    # Debug: mostrar origens CORS carregadas
+    try:
+        print(f"🔒 CORS origins loaded: {settings.cors_origins}")
+    except Exception:
+        print("🔒 CORS origins: (erro ao ler settings)")
     print("✅ Aplicação iniciada com sucesso!")
 
 

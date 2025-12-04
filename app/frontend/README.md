@@ -118,7 +118,7 @@ O sistema usa JWT armazenado no `localStorage`. Após o login, todas as requisi�
 
 ## 🔧 Configuração da API
 
-Por padrão, o frontend conecta-se à API em `http://localhost:8000`.
+Por padrão, o frontend conecta-se à API em `http://10.200.10.57:8000`.
 
 Para alterar, edite o arquivo `src/services/api.js`:
 

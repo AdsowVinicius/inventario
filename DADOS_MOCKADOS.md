@@ -384,7 +384,7 @@ FRONTEND_URL=http://localhost:3000
 
 ```javascript
 const api = axios.create({
-  baseURL: 'http://localhost:8000'
+  baseURL: 'http://10.200.10.57:8000'
 });
 ```
 

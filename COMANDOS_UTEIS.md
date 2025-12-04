@@ -260,7 +260,7 @@ JSON.parse(localStorage.getItem('user'))
 localStorage.clear()
 
 // Testar API manualmente
-fetch('http://localhost:8000/auth/login', {
+fetch('http://10.200.10.57:8000/auth/login', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ user_name: 'admin', senha: 'admin123' })
@@ -352,7 +352,7 @@ print(hashed)
 pip install gunicorn
 
 # Rodar com gunicorn
-gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind http://10.200.10.57:8000
 
 # Com systemd (Linux)
 # Criar arquivo /etc/systemd/system/inventario.service

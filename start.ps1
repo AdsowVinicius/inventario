@@ -22,7 +22,7 @@ Write-Host "✅ Sistema iniciado com sucesso!" -ForegroundColor Green
 Write-Host ""
 Write-Host "📍 URLs:" -ForegroundColor Cyan
 Write-Host "   Frontend: http://localhost:3000" -ForegroundColor White
-Write-Host "   Backend:  http://localhost:8000" -ForegroundColor White
-Write-Host "   API Docs: http://localhost:8000/docs" -ForegroundColor White
+Write-Host "   Backend:  http://10.200.10.57:8000" -ForegroundColor White
+Write-Host "   API Docs: http://10.200.10.57:8000/docs" -ForegroundColor White
 Write-Host ""
 Write-Host "⚠️  Para parar os servidores, feche as janelas do PowerShell" -ForegroundColor Yellow

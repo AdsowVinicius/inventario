@@ -121,13 +121,13 @@ O frontend não requer variáveis de ambiente por padrão. A URL da API está ha
 Se desejar usar variáveis de ambiente no frontend, crie um arquivo `.env` na pasta `app/frontend/`:
 
 ```env
-VITE_API_URL=http://localhost:8000
+VITE_API_URL=http://10.200.10.57:8000
 ```
 
 E atualize `src/services/api.js`:
 
 ```javascript
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://10.200.10.57:8000';
 ```
 
 ## Configuração para Diferentes Ambientes

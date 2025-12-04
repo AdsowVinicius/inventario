@@ -18,6 +18,16 @@ class ContagemCreate(ContagemBase):
     num_contagem: Optional[int] = Field(None, ge=1)
 
 
+class ContagemUpdate(BaseModel):
+    """Schema para atualizar contagem"""
+    zona_inventario: Optional[str] = None
+    etiqueta_inventario: Optional[str] = None
+    part_number: Optional[str] = None
+    campo: Optional[str] = None
+    qtd: Optional[float] = Field(None, ge=0)
+    num_contagem: Optional[int] = Field(None, ge=1, le=3)
+
+
 class ContagemResponse(ContagemBase):
     """Schema de resposta de contagem"""
     id: int
@@ -29,10 +39,30 @@ class ContagemResponse(ContagemBase):
         from_attributes = True
 
 
+class ContagemListResponse(BaseModel):
+    """Schema de resposta de contagem com nome do usuário"""
+    id: int
+    planta: str
+    zona_inventario: str
+    etiqueta_inventario: str
+    part_number: str
+    campo: Optional[str] = None
+    qtd: float
+    num_contagem: int
+    usuario_id: int
+    usuario_nome: str
+    timestamp: datetime
+    updated_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+
 class ContagemSugestaoResponse(BaseModel):
     """Schema para sugestão de número de contagem"""
     num_contagem_sugerido: int
     total_contagens: int
+    limite_atingido: bool = False
 
 
 class ContagemFiltros(BaseModel):

@@ -17,6 +17,16 @@ class ItensInventarioCreate(ItensInventarioBase):
     pass
 
 
+class ItensInventarioUpdate(BaseModel):
+    """Schema para atualizar item de inventário"""
+    num_material: Optional[str] = None
+    txt_descrica_material: Optional[str] = None
+    planta: Optional[str] = None
+    deposito: Optional[str] = None
+    tipo_material: Optional[str] = None
+    und_medida: Optional[str] = None
+
+
 class ItensInventarioResponse(ItensInventarioBase):
     """Schema de resposta de item de inventário"""
     id: int

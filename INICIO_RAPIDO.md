@@ -86,9 +86,9 @@ npm run dev
 
 🌐 **Frontend**: http://localhost:3000
 
-📡 **Backend API**: http://localhost:8000
+📡 **Backend API**: http://10.200.10.57:8000
 
-📚 **Documentação**: http://localhost:8000/docs
+📚 **Documentação**: http://10.200.10.57:8000/docs
 
 ### 6️⃣ Fazer Login
 

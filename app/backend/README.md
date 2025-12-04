@@ -86,9 +86,9 @@ print("Usuário admin criado com sucesso!")
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-A API estará disponível em: `http://localhost:8000`
+A API estará disponível em: `http://10.200.10.57:8000`
 
-Documentação interativa (Swagger): `http://localhost:8000/docs`
+Documentação interativa (Swagger): `http://10.200.10.57:8000/docs`
 
 ## 📚 Estrutura do Projeto
 
@@ -149,8 +149,8 @@ O sistema usa JWT (JSON Web Tokens) para autenticação. Faça login via `/auth/
 
 Para acessar a documentação automática da API:
 
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
+- Swagger UI: `http://10.200.10.57:8000/docs`
+- ReDoc: `http://10.200.10.57:8000/redoc`
 
 ## 📝 Licença
 

@@ -5,11 +5,26 @@ import Login from './pages/Login';
 import Contagem from './pages/Contagem';
 import Exportacao from './pages/Exportacao';
 import UserManagement from './pages/UserManagement';
+import GestaoItens from './pages/GestaoItens';
+import GestaoContagens from './pages/GestaoContagens';
+import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import { authService } from './services/api';
 import './index.css';
 
 const App = () => {
+  // Função para determinar página inicial baseada na role
+  const getDefaultRoute = () => {
+    const user = authService.getCurrentUser();
+    if (user && user.role === 'CONTROLADORIA') {
+      return '/dashboard';
+    }
+    if (user && user.role === 'ADMIN') {
+      return '/dashboard';
+    }
+    return '/contagem';
+  };
+  
   return (
     <BrowserRouter>
       <Routes>
@@ -17,16 +32,43 @@ const App = () => {
           path="/" 
           element={
             authService.isAuthenticated() 
-              ? <Navigate to="/contagem" replace /> 
+              ? <Navigate to={getDefaultRoute()} replace /> 
               : <Login />
+          } 
+        />
+        
+        <Route 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'CONTROLADORIA']}>
+              <Dashboard />
+            </ProtectedRoute>
           } 
         />
         
         <Route 
           path="/contagem" 
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['ADMIN', 'CONTADOR']}>
               <Contagem />
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/itens" 
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'CONTROLADORIA']}>
+              <GestaoItens />
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/gestao-contagens" 
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <GestaoContagens />
             </ProtectedRoute>
           } 
         />
@@ -34,7 +76,7 @@ const App = () => {
         <Route 
           path="/exportacao" 
           element={
-            <ProtectedRoute allowedRoles={['ADMIN', 'ENCARREGADO']}>
+            <ProtectedRoute allowedRoles={['ADMIN', 'CONTROLADORIA']}>
               <Exportacao />
             </ProtectedRoute>
           } 
@@ -43,7 +85,7 @@ const App = () => {
         <Route 
           path="/usuarios" 
           element={
-            <ProtectedRoute allowedRoles={['ADMIN', 'ENCARREGADO']}>
+            <ProtectedRoute allowedRoles={['ADMIN']}>
               <UserManagement />
             </ProtectedRoute>
           } 
