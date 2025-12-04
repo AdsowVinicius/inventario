@@ -280,10 +280,7 @@ const Dashboard = () => {
 
         {activeTab === 'divergentes' && (
           <div className="divergentes-section">
-            <h3>⚠️ Divergências - Aguardando 3ª Contagem</h3>
-            <p className="section-description">
-              Etiquetas onde a 1ª e 2ª contagem apresentam valores diferentes. É necessário realizar a 3ª contagem para desempate.
-            </p>
+            <h3>⚠️ Etiquetas com divergências</h3>
             {divergentes.filter(d => d.status === 'aguardando_contagem_3').length === 0 ? (
               <div className="empty-state">
                 <span className="empty-icon">✅</span>
