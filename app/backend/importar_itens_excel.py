@@ -61,25 +61,56 @@ def preparar_dados(df):
     print("\n🔄 Preparando dados...")
     
     # Mapear colunas do Excel para colunas do banco
-    # Excel: Material, Texto breve material, Tipo de material, Planta, UMB
+    # Excel atual: num_materiall, txt_descrica_material, planta, deposito, tipo_material, uni_medida
     # Banco: num_material, txt_descrica_material, tipo_material, planta, und_medida
     
     dados = []
     for idx, row in df.iterrows():
         # Converter Material para string e remover zeros à esquerda se necessário
-        material = str(row['Material']).strip() if pd.notna(row['Material']) else ''
+        # Tentar diferentes nomes de coluna para compatibilidade
+        material = None
+        for col in ['num_materiall', 'num_material', 'Material']:
+            if col in df.columns:
+                material = str(row[col]).strip() if pd.notna(row[col]) else ''
+                break
         
-        # Texto breve
-        descricao = str(row['Texto breve material']).strip() if pd.notna(row['Texto breve material']) else ''
+        if not material:
+            continue
+        
+        # Texto breve / descrição
+        descricao = None
+        for col in ['txt_descrica_material', 'Texto breve material', 'descricao']:
+            if col in df.columns:
+                descricao = str(row[col]).strip() if pd.notna(row[col]) else ''
+                break
         
         # Tipo de material
-        tipo = str(row['Tipo de material']).strip() if pd.notna(row['Tipo de material']) else ''
+        tipo = None
+        for col in ['tipo_material', 'Tipo de material']:
+            if col in df.columns:
+                tipo = str(row[col]).strip() if pd.notna(row[col]) else ''
+                break
         
         # Planta
-        planta = str(row['Planta']).strip() if pd.notna(row['Planta']) else ''
+        planta = None
+        for col in ['planta', 'Planta']:
+            if col in df.columns:
+                planta = str(row[col]).strip() if pd.notna(row[col]) else ''
+                break
         
         # Unidade de medida
-        und_medida = str(row['UMB']).strip() if pd.notna(row['UMB']) else ''
+        und_medida = None
+        for col in ['uni_medida', 'und_medida', 'UMB']:
+            if col in df.columns:
+                und_medida = str(row[col]).strip() if pd.notna(row[col]) else ''
+                break
+        
+        # Depósito
+        deposito = None
+        for col in ['deposito', 'Deposito']:
+            if col in df.columns:
+                deposito = str(row[col]).strip() if pd.notna(row[col]) else ''
+                break
         
         # Ignorar linhas sem material ou planta
         if not material or not planta:
@@ -91,7 +122,7 @@ def preparar_dados(df):
             'tipo_material': tipo[:50] if tipo else None,
             'planta': planta[:10] if planta else None,
             'und_medida': und_medida[:10] if und_medida else None,
-            'deposito': None  # Não temos essa coluna no Excel
+            'deposito': deposito[:20] if deposito else None
         })
     
     print(f"   ✅ {len(dados)} itens válidos preparados")
