@@ -12,9 +12,10 @@ const ZONAS_POR_PLANTA = {
     { codigo: 'B', descricao: 'Semi-Acabado' },
     { codigo: 'C', descricao: 'Matéria-Prima/Embalagens' },
     { codigo: 'D', descricao: 'Almoxarifado' },
-    { codigo: 'E', descricao: 'Câmara-Fria' },
-    { codigo: 'F', descricao: 'Qualidade' },
-    { codigo: 'G', descricao: 'Engenharia' }
+    { codigo: 'E', descricao: 'Almox/Manutenção' },
+    { codigo: 'F', descricao: 'Câmara-Fria' },
+    { codigo: 'G', descricao: 'Qualidade' },
+    { codigo: 'H', descricao: 'Engenharia' }
   ],
   'PS02': [
     { codigo: 'A', descricao: 'G2' },

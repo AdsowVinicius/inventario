@@ -19,9 +19,10 @@ ZONAS_POR_PLANTA = {
         'B': 'Semi-Acabado',
         'C': 'Matéria-Prima/Embalagens',
         'D': 'Almoxarifado',
-        'E': 'Câmara-Fria',
-        'F': 'Qualidade',
-        'G': 'Engenharia'
+        'E': 'Almox/Manutenção',
+        'F': 'Câmara-Fria',
+        'G': 'Qualidade',
+        'H': 'Engenharia'
     },
     'PS02': {
         'A': 'G2',
