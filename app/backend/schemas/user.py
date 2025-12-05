@@ -36,8 +36,8 @@ class UserBase(BaseModel):
     """Schema base de usuário com validações de segurança"""
     user_name: str = Field(..., min_length=3, max_length=100)
     email: Optional[str] = Field(None, max_length=255)
-    nome_completo: Optional[str] = Field(None, max_length=60)
-    departamento: Optional[str] = Field(None, max_length=60)
+    nome_completo: str = Field(..., min_length=3, max_length=60)
+    departamento: str = Field(..., min_length=2, max_length=60)
     planta: PlantaEnum
     role: RoleEnum = RoleEnum.CONTADOR
     
@@ -67,11 +67,21 @@ class UserBase(BaseModel):
             raise ValueError('Caracteres inválidos detectados')
         return v.lower()
     
-    @field_validator('nome_completo', 'departamento')
+    @field_validator('nome_completo')
     @classmethod
-    def validate_text_fields(cls, v):
-        if v is None:
-            return v
+    def validate_nome_completo(cls, v):
+        if not v or len(v.strip()) < 3:
+            raise ValueError('Nome completo é obrigatório (mínimo 3 caracteres)')
+        v = sanitize_string(v, 60)
+        if check_sql_injection(v):
+            raise ValueError('Caracteres inválidos detectados')
+        return v
+    
+    @field_validator('departamento')
+    @classmethod
+    def validate_departamento(cls, v):
+        if not v or len(v.strip()) < 2:
+            raise ValueError('Departamento é obrigatório (mínimo 2 caracteres)')
         v = sanitize_string(v, 60)
         if check_sql_injection(v):
             raise ValueError('Caracteres inválidos detectados')
@@ -93,9 +103,15 @@ class UserCreate(UserBase):
         return v
 
 
-class UserResponse(UserBase):
-    """Schema de resposta de usuário"""
+class UserResponse(BaseModel):
+    """Schema de resposta de usuário - campos opcionais para compatibilidade"""
     id: int
+    user_name: str
+    email: Optional[str] = None
+    nome_completo: Optional[str] = None
+    departamento: Optional[str] = None
+    planta: PlantaEnum
+    role: RoleEnum = RoleEnum.CONTADOR
     
     class Config:
         from_attributes = True

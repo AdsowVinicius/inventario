@@ -161,6 +161,80 @@
   font-weight: 500;
 }
 
+/* Progresso de Contagens */
+.progresso-contagens {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.progresso-contagens h3 {
+  margin: 0 0 16px 0;
+  color: #1a237e;
+  font-size: 1.1rem;
+}
+
+.progresso-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.progresso-card {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.progresso-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.progresso-titulo {
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.progresso-porcentagem {
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: #1a237e;
+}
+
+.progresso-bar-container {
+  height: 24px;
+  background: #e0e0e0;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progresso-bar {
+  height: 100%;
+  border-radius: 12px;
+  transition: width 0.5s ease;
+}
+
+.progresso-bar.contagem-1 {
+  background: linear-gradient(90deg, #1a237e 0%, #3949ab 100%);
+}
+
+.progresso-bar.contagem-2 {
+  background: linear-gradient(90deg, #2e7d32 0%, #4caf50 100%);
+}
+
+.progresso-detalhe {
+  font-size: 0.85rem;
+  color: #666;
+  text-align: center;
+}
+
 /* Tabs */
 .dashboard-tabs {
   display: flex;

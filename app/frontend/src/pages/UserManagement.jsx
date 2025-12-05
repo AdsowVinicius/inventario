@@ -319,11 +319,13 @@ const UserManagement = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Nome Completo</label>
+                  <label>Nome Completo *</label>
                   <input
                     type="text"
                     value={formData.nome_completo}
                     onChange={(e) => setFormData({...formData, nome_completo: e.target.value})}
+                    required
+                    minLength={3}
                     maxLength={60}
                     placeholder="Digite o nome completo"
                   />
@@ -340,11 +342,13 @@ const UserManagement = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Departamento</label>
+                  <label>Departamento *</label>
                   <input
                     type="text"
                     value={formData.departamento}
                     onChange={(e) => setFormData({...formData, departamento: e.target.value})}
+                    required
+                    minLength={2}
                     maxLength={60}
                     placeholder="Digite o departamento"
                   />

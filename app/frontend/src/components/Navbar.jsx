@@ -29,7 +29,7 @@ const Navbar = () => {
   const canManageUsers = user.role === 'ADMIN';
   const canManageItens = user.role === 'ADMIN' || user.role === 'CONTROLADORIA';
   const canManageContagens = user.role === 'ADMIN';
-  const canViewDashboard = user.role === 'ADMIN' || user.role === 'CONTROLADORIA';
+  const canViewDashboard = user.role === 'ADMIN';
   
   const isActive = (path) => location.pathname === path;
   

@@ -33,9 +33,10 @@ const Login = () => {
       localStorage.setItem('user', JSON.stringify(response.user));
       
       // Redirecionar baseado na role
-      // CONTROLADORIA e ADMIN vão para dashboard
-      if (response.user.role === 'CONTROLADORIA' || response.user.role === 'ADMIN') {
+      if (response.user.role === 'ADMIN') {
         navigate('/dashboard');
+      } else if (response.user.role === 'CONTROLADORIA') {
+        navigate('/exportacao');
       } else {
         navigate('/contagem');
       }

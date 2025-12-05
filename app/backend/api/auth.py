@@ -159,6 +159,9 @@ def login(
         user=UserResponse(
             id=user.id,
             user_name=user.user_name,
+            email=user.email,
+            nome_completo=user.nome_completo,
+            departamento=user.departamento,
             planta=user.planta,
             role=user.role
         )
@@ -173,6 +176,9 @@ def get_current_user_info(current_user: User = Depends(lambda: __import__('core.
     return UserResponse(
         id=current_user.id,
         user_name=current_user.user_name,
+        email=current_user.email,
+        nome_completo=current_user.nome_completo,
+        departamento=current_user.departamento,
         planta=current_user.planta,
         role=current_user.role
     )

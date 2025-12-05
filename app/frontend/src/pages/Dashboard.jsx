@@ -182,6 +182,44 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Progresso de Contagens 1 e 2 */}
+      <div className="progresso-contagens">
+        <h3>📊 Progresso das Contagens (Base: {formatNumber(kpis.total_itens_base)} itens)</h3>
+        <div className="progresso-grid">
+          <div className="progresso-card">
+            <div className="progresso-header">
+              <span className="progresso-titulo">1ª Contagem</span>
+              <span className="progresso-porcentagem">{kpis.percentual_contagem_1 || 0}%</span>
+            </div>
+            <div className="progresso-bar-container">
+              <div 
+                className="progresso-bar contagem-1" 
+                style={{ width: `${Math.min(kpis.percentual_contagem_1 || 0, 100)}%` }}
+              ></div>
+            </div>
+            <div className="progresso-detalhe">
+              <span>{formatNumber(kpis.etiquetas_com_contagem_1 || 0)} de {formatNumber(kpis.total_itens_base)} itens</span>
+            </div>
+          </div>
+          
+          <div className="progresso-card">
+            <div className="progresso-header">
+              <span className="progresso-titulo">2ª Contagem</span>
+              <span className="progresso-porcentagem">{kpis.percentual_contagem_2 || 0}%</span>
+            </div>
+            <div className="progresso-bar-container">
+              <div 
+                className="progresso-bar contagem-2" 
+                style={{ width: `${Math.min(kpis.percentual_contagem_2 || 0, 100)}%` }}
+              ></div>
+            </div>
+            <div className="progresso-detalhe">
+              <span>{formatNumber(kpis.etiquetas_com_contagem_2 || 0)} de {formatNumber(kpis.total_itens_base)} itens</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Tabs de navegação */}
       <div className="dashboard-tabs">
         <button 

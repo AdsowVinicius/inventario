@@ -16,11 +16,11 @@ const App = () => {
   // Função para determinar página inicial baseada na role
   const getDefaultRoute = () => {
     const user = authService.getCurrentUser();
-    if (user && user.role === 'CONTROLADORIA') {
-      return '/dashboard';
-    }
     if (user && user.role === 'ADMIN') {
       return '/dashboard';
+    }
+    if (user && user.role === 'CONTROLADORIA') {
+      return '/exportacao';
     }
     return '/contagem';
   };
@@ -40,7 +40,7 @@ const App = () => {
         <Route 
           path="/dashboard" 
           element={
-            <ProtectedRoute allowedRoles={['ADMIN', 'CONTROLADORIA']}>
+            <ProtectedRoute allowedRoles={['ADMIN']}>
               <Dashboard />
             </ProtectedRoute>
           } 

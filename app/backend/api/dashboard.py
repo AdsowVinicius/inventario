@@ -28,6 +28,11 @@ class KPIResponse(BaseModel):
     contagens_semana: int
     usuarios_ativos: int
     zonas_ativas: int
+    # Novos campos de porcentagem
+    etiquetas_com_contagem_1: int
+    etiquetas_com_contagem_2: int
+    percentual_contagem_1: float
+    percentual_contagem_2: float
     
     
 class ContagemDivergenteResponse(BaseModel):
@@ -81,8 +86,8 @@ class DashboardCompleto(BaseModel):
 
 
 def verificar_acesso_dashboard(current_user: User):
-    """Verifica se o usuário tem acesso ao dashboard"""
-    if current_user.role not in ['ADMIN', 'CONTROLADORIA']:
+    """Verifica se o usuário tem acesso ao dashboard - Apenas ADMIN"""
+    if current_user.role != 'ADMIN':
         raise HTTPException(status_code=403, detail="Acesso negado ao dashboard")
 
 
@@ -137,6 +142,26 @@ def obter_kpis(
         func.count(distinct(FormsContagem.zona_inventario))
     ).scalar() or 0
     
+    # Contar etiquetas que têm contagem 1
+    query_contagem_1 = db.query(
+        func.count(distinct(FormsContagem.etiqueta_inventario))
+    ).filter(FormsContagem.num_contagem == 1)
+    if planta:
+        query_contagem_1 = query_contagem_1.filter(FormsContagem.planta == planta)
+    etiquetas_com_contagem_1 = query_contagem_1.scalar() or 0
+    
+    # Contar etiquetas que têm contagem 2
+    query_contagem_2 = db.query(
+        func.count(distinct(FormsContagem.etiqueta_inventario))
+    ).filter(FormsContagem.num_contagem == 2)
+    if planta:
+        query_contagem_2 = query_contagem_2.filter(FormsContagem.planta == planta)
+    etiquetas_com_contagem_2 = query_contagem_2.scalar() or 0
+    
+    # Calcular porcentagens com base nos itens cadastrados
+    percentual_contagem_1 = round((etiquetas_com_contagem_1 / total_itens_base * 100), 2) if total_itens_base > 0 else 0.0
+    percentual_contagem_2 = round((etiquetas_com_contagem_2 / total_itens_base * 100), 2) if total_itens_base > 0 else 0.0
+    
     return KPIResponse(
         total_contagens=total_contagens,
         total_etiquetas=total_etiquetas,
@@ -144,7 +169,11 @@ def obter_kpis(
         contagens_hoje=contagens_hoje,
         contagens_semana=contagens_semana,
         usuarios_ativos=usuarios_ativos,
-        zonas_ativas=zonas_ativas
+        zonas_ativas=zonas_ativas,
+        etiquetas_com_contagem_1=etiquetas_com_contagem_1,
+        etiquetas_com_contagem_2=etiquetas_com_contagem_2,
+        percentual_contagem_1=percentual_contagem_1,
+        percentual_contagem_2=percentual_contagem_2
     )
 
 
