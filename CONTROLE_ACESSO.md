@@ -8,7 +8,7 @@
 | **📊 Dashboard** | ✅ | ❌ | ❌ |
 | **📝 Contagem** | ✅ | ❌ | ✅ |
 | **📋 Gestão de Contagens** | ✅ | ❌ | ❌ |
-| **📦 Gestão de Itens** | ✅ | ✅ | ❌ |
+| **📦 Gestão de Itens** | ✅ | ❌ | ❌ |
 | **📤 Exportação** | ✅ | ✅ | ❌ |
 | **👥 Gestão de Usuários** | ✅ | ❌ | ❌ |
 
@@ -53,9 +53,9 @@
 ### 📦 Gestão de Itens (`/itens`)
 | Ação | ADMIN | CONTROLADORIA | CONTADOR |
 |------|:-----:|:-------------:|:--------:|
-| Listar itens | ✅ | ✅ | ❌ |
-| Criar item | ✅ | ✅ | ❌ |
-| Editar item | ✅ | ✅ | ❌ |
+| Listar itens | ✅ | ❌ | ❌ |
+| Criar item | ✅ | ❌ | ❌ |
+| Editar item | ✅ | ❌ | ❌ |
 | Excluir item | ✅ | ❌ | ❌ |
 
 ### 📤 Exportação (`/exportacao`)
@@ -83,7 +83,7 @@
 | 📊 Dashboard | ✅ | ❌ | ❌ |
 | 📝 Contagem | ✅ | ❌ | ✅ |
 | 📋 Gestão | ✅ | ❌ | ❌ |
-| 📦 Itens | ✅ | ✅ | ❌ |
+| 📦 Itens | ✅ | ❌ | ❌ |
 | 📤 Exportar | ✅ | ✅ | ❌ |
 | 👥 Usuários | ✅ | ❌ | ❌ |
 
@@ -97,10 +97,9 @@
 - Página inicial: Dashboard
 
 ### 📊 CONTROLADORIA
-- Foco em **gestão de itens e exportação**
-- Pode cadastrar e editar itens
+- Foco em **exportação de dados**
 - Pode exportar dados para análise
-- **Não pode** fazer contagens nem acessar dashboard
+- **Não pode** fazer contagens, gerenciar itens nem acessar dashboard
 - Página inicial: Exportação
 
 ### 📦 CONTADOR

@@ -27,7 +27,7 @@ const Navbar = () => {
   const canCount = user.role === 'ADMIN' || user.role === 'CONTADOR';
   const canExport = user.role === 'ADMIN' || user.role === 'CONTROLADORIA';
   const canManageUsers = user.role === 'ADMIN';
-  const canManageItens = user.role === 'ADMIN' || user.role === 'CONTROLADORIA';
+  const canManageItens = user.role === 'ADMIN';
   const canManageContagens = user.role === 'ADMIN';
   const canViewDashboard = user.role === 'ADMIN';
   

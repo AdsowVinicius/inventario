@@ -13,10 +13,10 @@ router = APIRouter(prefix="/itens", tags=["Itens"])
 
 def verificar_permissao_edicao(current_user: User):
     """Verifica se o usuário tem permissão para editar itens"""
-    if current_user.role not in [RoleEnum.ADMIN, RoleEnum.CONTROLADORIA]:
+    if current_user.role != RoleEnum.ADMIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Apenas administradores e controladoria podem gerenciar itens"
+            detail="Apenas administradores podem gerenciar itens"
         )
 
 
