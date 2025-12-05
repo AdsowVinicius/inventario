@@ -9,6 +9,52 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="theme-color" content="#dc3545" />
     <title>PSCInventário</title>
+    <script>
+      // Bloquear console do desenvolvedor
+      (function() {
+        // Desabilitar teclas de atalho para abrir DevTools
+        document.addEventListener('keydown', function(e) {
+          // F12
+          if (e.key === 'F12') {
+            e.preventDefault();
+            return false;
+          }
+          // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+          if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
+            e.preventDefault();
+            return false;
+          }
+          // Ctrl+U (ver código fonte)
+          if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+            e.preventDefault();
+            return false;
+          }
+        });
+
+        // Desabilitar clique direito
+        document.addEventListener('contextmenu', function(e) {
+          e.preventDefault();
+          return false;
+        });
+
+        // Limpar console e sobrescrever métodos
+        if (typeof console !== 'undefined') {
+          console.log('%c⚠️ ATENÇÃO', 'color: red; font-size: 40px; font-weight: bold;');
+          console.log('%cEste console é restrito. Não execute comandos aqui.', 'color: orange; font-size: 16px;');
+          
+          // Sobrescrever métodos do console em produção
+          if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            const noop = function() {};
+            console.log = noop;
+            console.warn = noop;
+            console.error = noop;
+            console.info = noop;
+            console.debug = noop;
+            console.table = noop;
+          }
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

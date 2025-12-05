@@ -194,10 +194,23 @@ export const itensService = {
     return response.data;
   },
   
-  obterDetalhes: async (partNumber, planta) => {
-    const params = planta ? { planta } : {};
-    const response = await api.get(`/itens/detalhes/${encodeURIComponent(partNumber)}`, { params });
-    return response.data;
+  obterDetalhes: async (partNumber, planta, silencioso = false) => {
+    try {
+      const params = planta ? { planta } : {};
+      const response = await api.get(`/itens/detalhes/${encodeURIComponent(partNumber)}`, { params });
+      return response.data;
+    } catch (err) {
+      // Se for 404 e modo silencioso, retorna null sem logar erro
+      if (err.response?.status === 404) {
+        if (!silencioso) {
+          // Propaga o erro apenas se não for silencioso
+          throw err;
+        }
+        return null;
+      }
+      // Outros erros sempre propagam
+      throw err;
+    }
   },
 };
 

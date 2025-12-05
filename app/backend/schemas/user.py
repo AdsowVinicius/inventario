@@ -57,8 +57,8 @@ class UserBase(BaseModel):
     @field_validator('email')
     @classmethod
     def validate_email(cls, v):
-        if v is None:
-            return v
+        if v is None or v == '':
+            return None  # Converter string vazia para None
         v = sanitize_string(v, 255)
         # Validação básica de email
         if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', v):

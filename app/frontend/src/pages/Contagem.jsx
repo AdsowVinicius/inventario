@@ -154,7 +154,7 @@ const Contagem = () => {
     }
   };
 
-  // Buscar detalhes do item quando part number é definido (por scan ou seleção)
+  // Buscar detalhes do item (chamado apenas ao selecionar do autocomplete ou ao sair do campo)
   const buscarDetalhesItem = async (partNumber) => {
     if (!partNumber) {
       setItemSelecionado(null);
@@ -163,37 +163,40 @@ const Contagem = () => {
     }
     
     try {
-      const detalhes = await itensService.obterDetalhes(partNumber, plantaUsuario);
+      const detalhes = await itensService.obterDetalhes(partNumber, plantaUsuario, true);
       if (detalhes) {
         setItemSelecionado(detalhes);
         setUnidadeMedida(detalhes.und_medida || '');
+        setPnNaoEncontrado(false);
+        return true;
       }
     } catch (err) {
-      console.error('Erro ao buscar detalhes:', err);
-      // Tentar buscar localmente
-      const atualNormalizado = normalizeCode(partNumber);
-      const info = partNumbers.find(item => 
-        item.part_number === partNumber || item.part_number_normalizado === atualNormalizado
-      );
-      if (info) {
-        setItemSelecionado(info);
-        setUnidadeMedida(info.und_medida || '');
-      }
+      // Ignora erros silenciosamente
     }
+    
+    // Tentar busca local se não encontrou na API
+    const atualNormalizado = normalizeCode(partNumber);
+    const info = partNumbers.find(item => 
+      item.part_number === partNumber || item.part_number_normalizado === atualNormalizado
+    );
+    if (info) {
+      setItemSelecionado(info);
+      setUnidadeMedida(info.und_medida || '');
+      setPnNaoEncontrado(false);
+      return true;
+    }
+    
+    return false;
   };
 
+  // Limpar seleção quando part number é apagado
   useEffect(() => {
     if (!formData.part_number) {
       setUnidadeMedida('');
       setItemSelecionado(null);
-      return;
+      setPnNaoEncontrado(false);
     }
-
-    // Buscar detalhes quando part number muda (após seleção ou scan)
-    if (!mostrarSugestoes) {
-      buscarDetalhesItem(formData.part_number);
-    }
-  }, [formData.part_number, mostrarSugestoes]);
+  }, [formData.part_number]);
   
   // Função para iniciar contagens na zona
   const iniciarContagens = (e) => {
@@ -488,29 +491,19 @@ const Contagem = () => {
       part_number: normalizada
     }));
     
-    // Buscar detalhes após normalização e verificar se existe
-    try {
-      const detalhes = await itensService.obterDetalhes(normalizada, plantaUsuario);
-      // Se chegou aqui, encontrou o item
-      if (detalhes && detalhes.part_number) {
-        setItemSelecionado(detalhes);
-        setUnidadeMedida(detalhes.und_medida || '');
-        setPnNaoEncontrado(false);
-        setMessage(null);
-      }
-    } catch (err) {
-      // 404 = não encontrado
-      if (err.response?.status === 404) {
-        setItemSelecionado(null);
-        setPnNaoEncontrado(true);
-        setMessage({
-          type: 'error',
-          text: `Part Number "${normalizada}" não cadastrado. Solicite o cadastro ao Gestor, Controladoria ou Administrador.`
-        });
-      } else {
-        // Outro erro - pode ser rede, etc
-        console.error('Erro ao buscar detalhes:', err);
-      }
+    // Buscar detalhes após normalização (só aqui faz a requisição ao servidor)
+    const encontrado = await buscarDetalhesItem(normalizada);
+    
+    if (!encontrado) {
+      // Não encontrou nem na API nem localmente
+      setItemSelecionado(null);
+      setPnNaoEncontrado(true);
+      setMessage({
+        type: 'error',
+        text: `Part Number "${normalizada}" não cadastrado. Solicite o cadastro ao Gestor, Controladoria ou Administrador.`
+      });
+    } else {
+      setMessage(null);
     }
   };
   
