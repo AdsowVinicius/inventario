@@ -12,6 +12,60 @@ from utils.excel_export import generate_csv, generate_excel
 
 router = APIRouter(prefix="/exportacao", tags=["Exportação"])
 
+# Mapeamento de zonas por planta com descrição
+ZONAS_POR_PLANTA = {
+    'PS01': {
+        'A': 'Acabado',
+        'B': 'Semi-Acabado',
+        'C': 'Matéria-Prima/Embalagens',
+        'D': 'Almoxarifado',
+        'E': 'Câmara-Fria',
+        'F': 'Qualidade',
+        'G': 'Engenharia'
+    },
+    'PS02': {
+        'A': 'G2',
+        'B': 'Qualidade',
+        'C': 'Sala de Tintas',
+        'D': 'Almoxarifado de Tintas',
+        'E': 'Almoxarifado',
+        'F': 'Almox/Manutenção',
+        'G': 'Polimento/Retoque',
+        'H': 'Montagem',
+        'I': 'Estoque Acabado'
+    },
+    'PS03': {
+        'A': 'Acabado',
+        'B': 'Semi-Acabado',
+        'C': 'Componentes/Embalagens',
+        'D': 'Sala de Tintas',
+        'E': 'Almoxarifado'
+    },
+    'PS05': {
+        'A': 'Almoxarifado',
+        'B': 'Estoque Acabado',
+        'C': 'Montagem',
+        'D': 'Colagem',
+        'E': 'Semi-Acabado',
+        'F': 'Sala de Materiais',
+        'G': 'G2',
+        'H': 'Obsoleto',
+        'I': 'Engenharia/Qualidade'
+    },
+    'PB82': {
+        'A': 'Almoxarifado',
+        'B': 'Estoque',
+        'C': 'Produção'
+    }
+}
+
+def obter_zona_completa(planta: str, zona: str) -> str:
+    """Retorna a zona no formato 'Zona (A) - Descrição'"""
+    descricao = ZONAS_POR_PLANTA.get(planta, {}).get(zona, '')
+    if descricao:
+        return f"Zona ({zona}) - {descricao}"
+    return f"Zona ({zona})"
+
 
 @router.get("/preview")
 def preview_dados(
@@ -61,12 +115,13 @@ def preview_dados(
             'qtd': c.qtd,
             'quantidade': c.qtd,
             'zona_inventario': c.zona_inventario,
-            'zona_invent_no_text': c.zona_inventario,
+            'zona_invent_no_text': obter_zona_completa(c.planta, c.zona_inventario),
             'num_contagem': c.num_contagem,
             'created_date': c.timestamp.strftime('%b %d, %Y %I:%M %p') if c.timestamp else '',
             'modified_date': c.updated_at.strftime('%b %d, %Y %I:%M %p') if c.updated_at else '',
             'created_by': c.usuario.user_name if c.usuario else '',
-            'created_by_email': c.usuario.email if c.usuario and c.usuario.email else f"{c.usuario.user_name}@inventario.com" if c.usuario else ''
+            'created_by_email': c.usuario.email if c.usuario and c.usuario.email else f"{c.usuario.user_name}@inventario.com" if c.usuario else '',
+            'lote': c.lote or ''
         }
         for c in contagens
     ]
@@ -131,7 +186,7 @@ def exportar_csv(
     columns = [
         'etiqueta_inventario', 'inventario_cod_texto', 'part_number_text',
         'planta_text', 'quantidade', 'zona_invent_no_text',
-        'created_date', 'modified_date', 'created_by', 'created_by_email'
+        'created_date', 'modified_date', 'created_by', 'created_by_email', 'lote'
     ]
     
     data = [
@@ -141,11 +196,12 @@ def exportar_csv(
             'part_number_text': c.part_number,
             'planta_text': c.planta,
             'quantidade': c.qtd,
-            'zona_invent_no_text': c.zona_inventario,
+            'zona_invent_no_text': obter_zona_completa(c.planta, c.zona_inventario),
             'created_date': c.timestamp.strftime('%b %d, %Y %I:%M %p') if c.timestamp else '',
             'modified_date': c.updated_at.strftime('%b %d, %Y %I:%M %p') if c.updated_at else '',
             'created_by': c.usuario.user_name if c.usuario else '',
-            'created_by_email': c.usuario.email if c.usuario and c.usuario.email else f"{c.usuario.user_name}@inventario.com" if c.usuario else ''
+            'created_by_email': c.usuario.email if c.usuario and c.usuario.email else f"{c.usuario.user_name}@inventario.com" if c.usuario else '',
+            'lote': c.lote or ''
         }
         for c in contagens
     ]
@@ -196,7 +252,7 @@ def exportar_excel(
     columns = [
         'etiqueta_inventario', 'inventario_cod_texto', 'part_number_text',
         'planta_text', 'quantidade', 'zona_invent_no_text',
-        'created_date', 'modified_date', 'created_by', 'created_by_email'
+        'created_date', 'modified_date', 'created_by', 'created_by_email', 'lote'
     ]
     
     data = [
@@ -206,11 +262,12 @@ def exportar_excel(
             'part_number_text': c.part_number,
             'planta_text': c.planta,
             'quantidade': c.qtd,
-            'zona_invent_no_text': c.zona_inventario,
+            'zona_invent_no_text': obter_zona_completa(c.planta, c.zona_inventario),
             'created_date': c.timestamp.strftime('%b %d, %Y %I:%M %p') if c.timestamp else '',
             'modified_date': c.updated_at.strftime('%b %d, %Y %I:%M %p') if c.updated_at else '',
             'created_by': c.usuario.user_name if c.usuario else '',
-            'created_by_email': c.usuario.email if c.usuario and c.usuario.email else f"{c.usuario.user_name}@inventario.com" if c.usuario else ''
+            'created_by_email': c.usuario.email if c.usuario and c.usuario.email else f"{c.usuario.user_name}@inventario.com" if c.usuario else '',
+            'lote': c.lote or ''
         }
         for c in contagens
     ]

@@ -238,11 +238,12 @@ const Exportacao = () => {
                       <th>Part Number</th>
                       <th>Planta</th>
                       <th>Quantidade</th>
-                      <th>Zona Invent No</th>
+                      <th>Zona Inventário</th>
                       <th>Data Criação</th>
                       <th>Data Modificação</th>
                       <th>Criado Por</th>
                       <th>Email</th>
+                      <th>Lote</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -258,6 +259,7 @@ const Exportacao = () => {
                         <td>{item.modified_date}</td>
                         <td>{item.created_by}</td>
                         <td>{item.created_by_email}</td>
+                        <td>{item.lote || '-'}</td>
                       </tr>
                     ))}
                   </tbody>

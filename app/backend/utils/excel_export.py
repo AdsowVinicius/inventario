@@ -20,7 +20,8 @@ def generate_csv(data: List[Dict[str, Any]], columns: List[str]) -> str:
         'created_date': 'Data Criação',
         'modified_date': 'Data Modificação',
         'created_by': 'Criado Por',
-        'created_by_email': 'Email'
+        'created_by_email': 'Email',
+        'lote': 'Lote'
     }
     
     writer = csv.DictWriter(output, fieldnames=columns, extrasaction='ignore')
@@ -54,7 +55,8 @@ def generate_excel(data: List[Dict[str, Any]], columns: List[str]) -> bytes:
         'created_date': 'Data Criação',
         'modified_date': 'Data Modificação',
         'created_by': 'Criado Por',
-        'created_by_email': 'Email'
+        'created_by_email': 'Email',
+        'lote': 'Lote'
     }
     
     # Estilo do cabeçalho
