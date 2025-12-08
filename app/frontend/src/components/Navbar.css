@@ -94,6 +94,24 @@
   box-shadow: 0 2px 10px rgba(220, 53, 69, 0.3);
 }
 
+.btn-alterar-senha {
+  padding: 0.5rem 1rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.btn-alterar-senha:hover {
+  background: #5a67d8;
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
 /* Botão Hamburger - oculto em desktop */
 .hamburger {
   display: none;

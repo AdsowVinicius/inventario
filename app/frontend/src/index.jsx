@@ -8,6 +8,7 @@ import UserManagement from './pages/UserManagement';
 import GestaoItens from './pages/GestaoItens';
 import GestaoContagens from './pages/GestaoContagens';
 import Dashboard from './pages/Dashboard';
+import AlterarSenha from './pages/AlterarSenha';
 import ProtectedRoute from './components/ProtectedRoute';
 import { authService } from './services/api';
 import './index.css';
@@ -87,6 +88,15 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={['ADMIN']}>
               <UserManagement />
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/alterar-senha" 
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'CONTROLADORIA', 'CONTADOR']}>
+              <AlterarSenha />
             </ProtectedRoute>
           } 
         />

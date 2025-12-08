@@ -141,6 +141,15 @@ export const authService = {
     }
     return hasToken;
   },
+  
+  alterarSenha: async (senhaAtual, novaSenha, confirmarSenha) => {
+    const response = await api.post('/auth/alterar-senha', {
+      senha_atual: senhaAtual,
+      nova_senha: novaSenha,
+      confirmar_senha: confirmarSenha
+    });
+    return response.data;
+  },
 };
 
 // Serviços de itens

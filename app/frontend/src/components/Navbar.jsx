@@ -96,6 +96,9 @@ const Navbar = () => {
             <span className="user-info">
               👤 {user.user_name} | {user.planta} | {user.role}
             </span>
+            <Link to="/alterar-senha" className="btn-alterar-senha">
+              🔐 Senha
+            </Link>
             <button onClick={handleLogout} className="btn-logout">
               🚪 Sair
             </button>
@@ -169,6 +172,14 @@ const Navbar = () => {
               👥 Usuários
             </Link>
           )}
+          
+          <Link 
+            to="/alterar-senha" 
+            className={`mobile-item ${isActive('/alterar-senha') ? 'active' : ''}`}
+            onClick={fecharMenu}
+          >
+            🔐 Alterar Senha
+          </Link>
         </div>
         
         <button onClick={handleLogout} className="mobile-logout">

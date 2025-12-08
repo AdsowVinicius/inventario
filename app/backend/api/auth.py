@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from core.database import get_db
-from core.security import hash_password, verify_password, create_access_token
+from core.security import hash_password, verify_password, create_access_token, get_current_user
 from core.security_utils import (
     rate_limiter, 
     log_security_event, 
@@ -169,7 +169,7 @@ def login(
 
 
 @router.get("/me", response_model=UserResponse)
-def get_current_user_info(current_user: User = Depends(lambda: __import__('core.security', fromlist=['get_current_user']).get_current_user)):
+def get_current_user_info(current_user: User = Depends(get_current_user)):
     """
     Retorna informações do usuário autenticado
     """
@@ -182,3 +182,73 @@ def get_current_user_info(current_user: User = Depends(lambda: __import__('core.
         planta=current_user.planta,
         role=current_user.role
     )
+
+
+from pydantic import BaseModel, Field
+
+class AlterarSenhaRequest(BaseModel):
+    senha_atual: str = Field(..., min_length=1)
+    nova_senha: str = Field(..., min_length=6, max_length=128)
+    confirmar_senha: str = Field(..., min_length=6, max_length=128)
+
+
+@router.post("/alterar-senha")
+def alterar_senha(
+    dados: AlterarSenhaRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Permite ao usuário alterar sua própria senha
+    """
+    client_ip = get_client_ip(request)
+    
+    # Verificar se nova senha e confirmação são iguais
+    if dados.nova_senha != dados.confirmar_senha:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Nova senha e confirmação não coincidem"
+        )
+    
+    # Verificar senha atual
+    # Buscar usuário atual no banco
+    user = db.query(User).filter(User.id == current_user.id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuário não encontrado"
+        )
+    
+    if not verify_password(dados.senha_atual, user.senha_hash):
+        log_security_event(
+            "PASSWORD_CHANGE_FAILED",
+            "Senha atual incorreta",
+            user_id=user.id,
+            ip_address=client_ip
+        )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Senha atual incorreta"
+        )
+    
+    # Verificar se nova senha é diferente da atual
+    if verify_password(dados.nova_senha, user.senha_hash):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A nova senha deve ser diferente da senha atual"
+        )
+    
+    # Atualizar senha
+    user.senha_hash = hash_password(dados.nova_senha)
+    db.commit()
+    
+    logger.info(f"Senha alterada com sucesso para usuário: {user.user_name} de IP: {client_ip}")
+    log_security_event(
+        "PASSWORD_CHANGED",
+        "Senha alterada com sucesso",
+        user_id=user.id,
+        ip_address=client_ip
+    )
+    
+    return {"message": "Senha alterada com sucesso"}
