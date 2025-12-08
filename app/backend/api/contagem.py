@@ -136,20 +136,20 @@ def salvar_contagem(
                 detail=f"O número da contagem não pode ser maior que 3."
             )
 
-        # Evitar duplicar números manualmente informados
-        if contagem.num_contagem:
-            filtros = [
-                FormsContagem.planta == contagem.planta,
-                FormsContagem.etiqueta_inventario.in_(list(etiqueta_variantes)),
-                FormsContagem.num_contagem == contagem.num_contagem
-            ]
-            existente = db.query(FormsContagem).filter(*filtros).first()
+        # Verificar se já existe contagem com este número para esta etiqueta/planta
+        # SEMPRE verificar, independente se número foi informado ou calculado
+        filtros = [
+            FormsContagem.planta == contagem.planta,
+            FormsContagem.etiqueta_inventario.in_(list(etiqueta_variantes)),
+            FormsContagem.num_contagem == numero_final
+        ]
+        existente = db.query(FormsContagem).filter(*filtros).first()
 
-            if existente:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Já existe uma contagem #{contagem.num_contagem} para esta etiqueta nesta planta"
-                )
+        if existente:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Já existe uma contagem #{numero_final} para esta etiqueta nesta planta. Não é permitido duplicar."
+            )
         
         # Criar novo registro com número definido
         nova_contagem = FormsContagem(
