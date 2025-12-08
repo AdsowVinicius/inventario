@@ -163,7 +163,8 @@ def login(
             nome_completo=user.nome_completo,
             departamento=user.departamento,
             planta=user.planta,
-            role=user.role
+            role=user.role,
+            primeiro_login=user.primeiro_login
         )
     )
 
@@ -180,7 +181,8 @@ def get_current_user_info(current_user: User = Depends(get_current_user)):
         nome_completo=current_user.nome_completo,
         departamento=current_user.departamento,
         planta=current_user.planta,
-        role=current_user.role
+        role=current_user.role,
+        primeiro_login=current_user.primeiro_login
     )
 
 
@@ -239,8 +241,9 @@ def alterar_senha(
             detail="A nova senha deve ser diferente da senha atual"
         )
     
-    # Atualizar senha
+    # Atualizar senha e marcar que não é mais primeiro login
     user.senha_hash = hash_password(dados.nova_senha)
+    user.primeiro_login = False
     db.commit()
     
     logger.info(f"Senha alterada com sucesso para usuário: {user.user_name} de IP: {client_ip}")
@@ -251,4 +254,4 @@ def alterar_senha(
         ip_address=client_ip
     )
     
-    return {"message": "Senha alterada com sucesso"}
+    return {"message": "Senha alterada com sucesso", "primeiro_login": False}

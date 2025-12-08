@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Enum
+from sqlalchemy import Column, Integer, String, Enum, Boolean
 from core.database import Base
 import enum
 
@@ -32,6 +32,7 @@ class User(Base):
     senha_hash = Column(String(255), nullable=False)
     planta = Column(Enum(PlantaEnum), nullable=False)
     role = Column(Enum(RoleEnum), nullable=False, default=RoleEnum.CONTADOR)
+    primeiro_login = Column(Boolean, nullable=False, default=True)
     
     def __repr__(self):
         return f"<User(id={self.id}, user_name={self.user_name}, planta={self.planta}, role={self.role})>"

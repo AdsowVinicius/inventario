@@ -27,8 +27,9 @@ const sessionManager = {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem(LAST_ACTIVITY_KEY);
-    alert('⏱️ Sua sessão expirou por inatividade (30 minutos). Faça login novamente.');
-    window.location.href = '/';
+    alert('Sua sessão expirou por inatividade (30 minutos). Faça login novamente.');
+    // Usar replace para evitar voltar com botão do navegador
+    window.location.replace('/');
   },
   
   // Limpa o timer de inatividade
@@ -106,7 +107,9 @@ api.interceptors.response.use(
       // Token inválido ou expirado
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/';
+      localStorage.removeItem(LAST_ACTIVITY_KEY);
+      // Usar replace para evitar voltar com botão do navegador
+      window.location.replace('/');
     }
     return Promise.reject(error);
   }

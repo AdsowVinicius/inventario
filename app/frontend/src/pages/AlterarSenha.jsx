@@ -7,6 +7,7 @@ import './AlterarSenha.css';
 const AlterarSenha = () => {
   const navigate = useNavigate();
   const user = authService.getCurrentUser();
+  const isPrimeiroLogin = user?.primeiro_login === true;
   
   const [formData, setFormData] = useState({
     senhaAtual: '',
@@ -85,7 +86,11 @@ const AlterarSenha = () => {
         formData.confirmarSenha
       );
       
-      setSuccess('✅ Senha alterada com sucesso!');
+      // Atualizar localStorage para marcar que não é mais primeiro login
+      const updatedUser = { ...user, primeiro_login: false };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      setSuccess('Senha alterada com sucesso!');
       setFormData({
         senhaAtual: '',
         novaSenha: '',
@@ -94,7 +99,18 @@ const AlterarSenha = () => {
       
       // Redirecionar após 2 segundos
       setTimeout(() => {
-        navigate(-1); // Volta para página anterior
+        // Se era primeiro login, redirecionar para página correta
+        if (isPrimeiroLogin) {
+          if (updatedUser.role === 'ADMIN') {
+            navigate('/dashboard');
+          } else if (updatedUser.role === 'CONTROLADORIA') {
+            navigate('/exportacao');
+          } else {
+            navigate('/contagem');
+          }
+        } else {
+          navigate(-1); // Volta para página anterior
+        }
       }, 2000);
       
     } catch (err) {
@@ -106,6 +122,11 @@ const AlterarSenha = () => {
   };
   
   const handleVoltar = () => {
+    // Se for primeiro login, não permitir voltar sem alterar a senha
+    if (isPrimeiroLogin) {
+      setError('Você precisa alterar sua senha antes de continuar');
+      return;
+    }
     navigate(-1);
   };
   
@@ -115,12 +136,23 @@ const AlterarSenha = () => {
       <div className="alterar-senha-container">
         <div className="alterar-senha-card">
           <div className="alterar-senha-header">
-            <h1>🔐 Alterar Senha</h1>
-            <p>Altere sua senha de acesso ao sistema</p>
+            <h1>Alterar Senha</h1>
+            <p>
+              {isPrimeiroLogin 
+                ? 'Para sua segurança, altere sua senha no primeiro acesso'
+                : 'Altere sua senha de acesso ao sistema'
+              }
+            </p>
           </div>
           
+          {isPrimeiroLogin && (
+            <div className="alert alert-warning">
+              Este é seu primeiro acesso. Por favor, crie uma nova senha pessoal.
+            </div>
+          )}
+          
           <div className="user-info-box">
-            <span className="user-icon">👤</span>
+            <span className="user-icon-letter">{(user?.nome_completo || user?.user_name || 'U').charAt(0).toUpperCase()}</span>
             <div className="user-details">
               <strong>{user?.nome_completo || user?.user_name}</strong>
               <span>{user?.planta} | {user?.role}</span>
@@ -129,7 +161,7 @@ const AlterarSenha = () => {
           
           {error && (
             <div className="alert alert-error">
-              ❌ {error}
+              {error}
             </div>
           )}
           
@@ -159,7 +191,7 @@ const AlterarSenha = () => {
                   onClick={() => toggleShowPassword('atual')}
                   tabIndex={-1}
                 >
-                  {showPasswords.atual ? '🙈' : '👁️'}
+                  {showPasswords.atual ? 'Ocultar' : 'Ver'}
                 </button>
               </div>
             </div>
@@ -184,7 +216,7 @@ const AlterarSenha = () => {
                   onClick={() => toggleShowPassword('nova')}
                   tabIndex={-1}
                 >
-                  {showPasswords.nova ? '🙈' : '👁️'}
+                  {showPasswords.nova ? 'Ocultar' : 'Ver'}
                 </button>
               </div>
               <small className="form-hint">Mínimo de 6 caracteres</small>
@@ -210,32 +242,34 @@ const AlterarSenha = () => {
                   onClick={() => toggleShowPassword('confirmar')}
                   tabIndex={-1}
                 >
-                  {showPasswords.confirmar ? '🙈' : '👁️'}
+                  {showPasswords.confirmar ? 'Ocultar' : 'Ver'}
                 </button>
               </div>
             </div>
             
             <div className="form-actions">
-              <button
-                type="button"
-                className="btn-cancelar"
-                onClick={handleVoltar}
-                disabled={loading}
-              >
-                ← Voltar
-              </button>
+              {!isPrimeiroLogin && (
+                <button
+                  type="button"
+                  className="btn-cancelar"
+                  onClick={handleVoltar}
+                  disabled={loading}
+                >
+                  Voltar
+                </button>
+              )}
               <button
                 type="submit"
-                className="btn-alterar"
+                className={`btn-alterar ${isPrimeiroLogin ? 'btn-full-width' : ''}`}
                 disabled={loading}
               >
-                {loading ? '⏳ Alterando...' : '🔐 Alterar Senha'}
+                {loading ? 'Alterando...' : 'Alterar Senha'}
               </button>
             </div>
           </form>
           
           <div className="senha-dicas">
-            <h4>💡 Dicas para uma senha segura:</h4>
+            <h4>Dicas para uma senha segura:</h4>
             <ul>
               <li>Use pelo menos 6 caracteres</li>
               <li>Combine letras maiúsculas e minúsculas</li>

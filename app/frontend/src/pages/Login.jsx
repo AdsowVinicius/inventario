@@ -32,6 +32,12 @@ const Login = () => {
       localStorage.setItem('token', response.access_token);
       localStorage.setItem('user', JSON.stringify(response.user));
       
+      // Verificar se é primeiro login - forçar troca de senha
+      if (response.user.primeiro_login) {
+        navigate('/alterar-senha');
+        return;
+      }
+      
       // Redirecionar baseado na role
       if (response.user.role === 'ADMIN') {
         navigate('/dashboard');

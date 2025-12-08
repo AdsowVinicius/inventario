@@ -44,8 +44,17 @@
   border: 1px solid #e9ecef;
 }
 
-.user-icon {
-  font-size: 2rem;
+.user-icon-letter {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 600;
 }
 
 .user-details {
@@ -80,6 +89,12 @@
   background: #dcfce7;
   color: #16a34a;
   border: 1px solid #bbf7d0;
+}
+
+.alert-warning {
+  background: #fef3cd;
+  color: #856404;
+  border: 1px solid #ffc107;
 }
 
 .alterar-senha-form {
@@ -123,18 +138,21 @@
 
 .toggle-password {
   position: absolute;
-  right: 12px;
-  background: none;
-  border: none;
-  font-size: 1.2rem;
+  right: 8px;
+  background: #e9ecef;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
   cursor: pointer;
-  padding: 4px;
-  opacity: 0.6;
-  transition: opacity 0.2s;
+  padding: 6px 10px;
+  color: #495057;
+  transition: all 0.2s;
 }
 
 .toggle-password:hover {
-  opacity: 1;
+  background: #dee2e6;
+  color: #333;
 }
 
 .form-hint {
@@ -184,6 +202,10 @@
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
+}
+
+.btn-full-width {
+  width: 100%;
 }
 
 .senha-dicas {

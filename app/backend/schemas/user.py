@@ -112,6 +112,7 @@ class UserResponse(BaseModel):
     departamento: Optional[str] = None
     planta: PlantaEnum
     role: RoleEnum = RoleEnum.CONTADOR
+    primeiro_login: bool = False
     
     class Config:
         from_attributes = True

@@ -14,13 +14,20 @@ import { authService } from './services/api';
 import './index.css';
 
 const App = () => {
-  // Função para determinar página inicial baseada na role
+  // Função para determinar página inicial baseada na role e primeiro_login
   const getDefaultRoute = () => {
     const user = authService.getCurrentUser();
-    if (user && user.role === 'ADMIN') {
+    if (!user) return '/';
+    
+    // Se é primeiro login, forçar troca de senha
+    if (user.primeiro_login) {
+      return '/alterar-senha';
+    }
+    
+    if (user.role === 'ADMIN') {
       return '/dashboard';
     }
-    if (user && user.role === 'CONTROLADORIA') {
+    if (user.role === 'CONTROLADORIA') {
       return '/exportacao';
     }
     return '/contagem';

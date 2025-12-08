@@ -11,7 +11,10 @@ const Navbar = () => {
   
   const handleLogout = () => {
     authService.logout();
-    navigate('/');
+    // Usar replace para não permitir voltar com o botão do navegador
+    navigate('/', { replace: true });
+    // Forçar reload para limpar qualquer estado
+    window.location.reload();
   };
   
   const fecharMenu = () => {
