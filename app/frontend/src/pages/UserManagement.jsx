@@ -19,6 +19,11 @@ const UserManagement = () => {
   const [modoEdicao, setModoEdicao] = useState(false);
   const [usuarioEditando, setUsuarioEditando] = useState(null);
   
+  // Estados para pesquisa e filtro
+  const [busca, setBusca] = useState('');
+  const [filtroPlanta, setFiltroPlanta] = useState('');
+  const [filtroRole, setFiltroRole] = useState('');
+  
   const [formData, setFormData] = useState({
     user_name: '',
     email: '',
@@ -227,6 +232,31 @@ const UserManagement = () => {
     return false;
   };
 
+  // Função para filtrar usuários
+  const usuariosFiltrados = usuarios.filter(usuario => {
+    // Filtro por busca (nome, user_name, email, departamento)
+    const termoBusca = busca.toLowerCase().trim();
+    const matchBusca = !termoBusca || 
+      usuario.user_name?.toLowerCase().includes(termoBusca) ||
+      usuario.nome_completo?.toLowerCase().includes(termoBusca) ||
+      usuario.email?.toLowerCase().includes(termoBusca) ||
+      usuario.departamento?.toLowerCase().includes(termoBusca);
+    
+    // Filtro por planta
+    const matchPlanta = !filtroPlanta || usuario.planta === filtroPlanta;
+    
+    // Filtro por role
+    const matchRole = !filtroRole || usuario.role === filtroRole;
+    
+    return matchBusca && matchPlanta && matchRole;
+  });
+
+  const limparFiltros = () => {
+    setBusca('');
+    setFiltroPlanta('');
+    setFiltroRole('');
+  };
+
   return (
     <>
       <Navbar />
@@ -236,6 +266,55 @@ const UserManagement = () => {
           <button className="btn-criar" onClick={abrirModalCriar}>
             + Novo Usuário
           </button>
+        </div>
+
+        {/* Barra de Pesquisa e Filtros */}
+        <div className="filtros-container">
+          <div className="filtro-busca">
+            <input
+              type="text"
+              placeholder="Pesquisar por nome, usuário, email ou departamento..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              className="input-busca"
+            />
+          </div>
+          
+          <div className="filtros-selects">
+            <select
+              value={filtroPlanta}
+              onChange={(e) => setFiltroPlanta(e.target.value)}
+              className="select-filtro"
+            >
+              <option value="">Todas as Plantas</option>
+              {PLANTAS.map(planta => (
+                <option key={planta} value={planta}>{planta}</option>
+              ))}
+            </select>
+            
+            <select
+              value={filtroRole}
+              onChange={(e) => setFiltroRole(e.target.value)}
+              className="select-filtro"
+            >
+              <option value="">Todos os Perfis</option>
+              {ROLES.map(role => (
+                <option key={role.value} value={role.value}>{role.label}</option>
+              ))}
+            </select>
+            
+            {(busca || filtroPlanta || filtroRole) && (
+              <button className="btn-limpar-filtros" onClick={limparFiltros}>
+                Limpar Filtros
+              </button>
+            )}
+          </div>
+          
+          <div className="filtros-info">
+            <span>
+              Exibindo {usuariosFiltrados.length} de {usuarios.length} usuários
+            </span>
+          </div>
         </div>
 
         {message && (
@@ -260,39 +339,50 @@ const UserManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {usuarios.map(usuario => (
-                <tr key={usuario.id}>
-                  <td>{usuario.user_name}</td>
-                  <td>{usuario.nome_completo || '-'}</td>
-                  <td>{usuario.email || '-'}</td>
-                  <td>{usuario.departamento || '-'}</td>
-                  <td>{usuario.planta}</td>
-                  <td>
-                    <span className={`badge badge-${usuario.role.toLowerCase()}`}>
-                      {getRoleLabel(usuario.role)}
-                    </span>
-                  </td>
-                  <td>
-                    {podeEditarUsuario(usuario) && (
-                      <>
-                        <button 
-                          className="btn-editar"
-                          onClick={() => abrirModalEditar(usuario)}
-                        >
-                          Editar
-                        </button>
-                        <button 
-                          className="btn-deletar"
-                          onClick={() => handleDelete(usuario)}
-                          disabled={usuario.id === currentUser.id}
-                        >
-                          Deletar
-                        </button>
-                      </>
-                    )}
+              {usuariosFiltrados.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="no-results">
+                    {usuarios.length === 0 
+                      ? 'Nenhum usuário cadastrado'
+                      : 'Nenhum usuário encontrado com os filtros aplicados'
+                    }
                   </td>
                 </tr>
-              ))}
+              ) : (
+                usuariosFiltrados.map(usuario => (
+                  <tr key={usuario.id}>
+                    <td>{usuario.user_name}</td>
+                    <td>{usuario.nome_completo || '-'}</td>
+                    <td>{usuario.email || '-'}</td>
+                    <td>{usuario.departamento || '-'}</td>
+                    <td>{usuario.planta}</td>
+                    <td>
+                      <span className={`badge badge-${usuario.role.toLowerCase()}`}>
+                        {getRoleLabel(usuario.role)}
+                      </span>
+                    </td>
+                    <td>
+                      {podeEditarUsuario(usuario) && (
+                        <>
+                          <button 
+                            className="btn-editar"
+                            onClick={() => abrirModalEditar(usuario)}
+                          >
+                            Editar
+                          </button>
+                          <button 
+                            className="btn-deletar"
+                            onClick={() => handleDelete(usuario)}
+                            disabled={usuario.id === currentUser.id}
+                          >
+                            Deletar
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
