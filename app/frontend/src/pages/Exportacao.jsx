@@ -191,14 +191,15 @@ const Exportacao = () => {
             
             <div className="form-row">
               <div className="form-group">
-                <label>Número da Contagem</label>
+                <label>Número da Contagem (1-3)</label>
                 <input
                   type="number"
                   name="num_contagem"
                   value={filtros.num_contagem}
                   onChange={handleChange}
-                  placeholder="Ex: 1"
+                  placeholder="1, 2 ou 3"
                   min="1"
+                  max="3"
                 />
               </div>
               
