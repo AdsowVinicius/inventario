@@ -126,7 +126,7 @@ const Exportacao = () => {
       
       <div className="exportacao-container">
         <div className="exportacao-card">
-          <h2>📊 Exportação de Contagens</h2>
+          <h2>Exportação de Contagens</h2>
           <p className="subtitle">Filtre os dados e exporte para CSV ou Excel</p>
           
           {message && (
@@ -136,7 +136,7 @@ const Exportacao = () => {
           )}
           
           <div className="filtros-form">
-            <h3>🔍 Filtros (Todos Opcionais)</h3>
+            <h3>Filtros (Todos Opcionais)</h3>
             
             <div className="form-row">
               <div className="form-group">
@@ -208,7 +208,7 @@ const Exportacao = () => {
                   className="btn-limpar"
                   type="button"
                 >
-                  🗑️ Limpar Filtros
+                  Limpar Filtros
                 </button>
               </div>
               
@@ -219,7 +219,7 @@ const Exportacao = () => {
                   type="button"
                   disabled={loadingPreview}
                 >
-                  {loadingPreview ? '⏳ Carregando...' : '👁️ Visualizar Dados'}
+                  {loadingPreview ? 'Carregando...' : 'Visualizar Dados'}
                 </button>
               </div>
             </div>
@@ -227,38 +227,41 @@ const Exportacao = () => {
           
           {previewData && (
             <div className="preview-section">
-              <h3>📋 Preview dos Dados ({previewData.exibindo} de {previewData.total} registros)</h3>
+              <div className="preview-header">
+                <h3>Visualização dos Dados</h3>
+                <span className="preview-count">
+                  Exibindo {previewData.exibindo} de {previewData.total} registros
+                </span>
+              </div>
               
               <div className="table-container">
                 <table className="preview-table">
                   <thead>
                     <tr>
-                      <th>Etiqueta Inventário</th>
-                      <th>Inventario Cod</th>
-                      <th>Part Number</th>
+                      <th>Num. Contagem</th>
+                      <th>Num. Etiqueta</th>
+                      <th>Material</th>
                       <th>Planta</th>
-                      <th>Quantidade</th>
-                      <th>Zona Inventário</th>
+                      <th>Qtd</th>
+                      <th>Zona</th>
                       <th>Data Criação</th>
-                      <th>Data Modificação</th>
+                      <th>Modificação</th>
                       <th>Criado Por</th>
-                      <th>Email</th>
                       <th>Lote</th>
                     </tr>
                   </thead>
                   <tbody>
                     {previewData.dados.map((item, idx) => (
                       <tr key={item.id || idx}>
-                        <td>{item.etiqueta_inventario}</td>
-                        <td>{item.inventario_cod_texto}</td>
-                        <td>{item.part_number_text}</td>
-                        <td>{item.planta_text}</td>
-                        <td>{item.quantidade}</td>
-                        <td>{item.zona_invent_no_text}</td>
-                        <td>{item.created_date}</td>
-                        <td>{item.modified_date}</td>
+                        <td><span className="badge badge-contagem">{item.etiqueta_inventario}</span></td>
+                        <td><span className="badge badge-etiqueta">{item.inventario_cod_texto}</span></td>
+                        <td className="material-cell">{item.part_number_text}</td>
+                        <td><span className="badge badge-planta">{item.planta_text}</span></td>
+                        <td className="quantidade-cell">{item.quantidade}</td>
+                        <td>{item.zona_invent_no_text || '-'}</td>
+                        <td className="data-cell">{item.created_date}</td>
+                        <td className="data-cell">{item.modified_date || '-'}</td>
                         <td>{item.created_by}</td>
-                        <td>{item.created_by_email}</td>
                         <td>{item.lote || '-'}</td>
                       </tr>
                     ))}
@@ -268,7 +271,7 @@ const Exportacao = () => {
               
               {previewData.total > previewData.exibindo && (
                 <p className="preview-note">
-                  ℹ️ Exibindo apenas {previewData.exibindo} registros. 
+                  Exibindo apenas {previewData.exibindo} registros. 
                   Use a exportação para obter todos os {previewData.total} registros.
                 </p>
               )}
@@ -276,7 +279,7 @@ const Exportacao = () => {
           )}
           
           <div className="exportacao-actions">
-            <h3>📥 Exportar Dados</h3>
+            <h3>Exportar Dados</h3>
             
             <div className="buttons-row">
               <button
@@ -284,7 +287,7 @@ const Exportacao = () => {
                 className="btn-export btn-csv"
                 disabled={loading}
               >
-                {loading ? '⏳ Exportando...' : '📄 Exportar CSV'}
+                {loading ? 'Exportando...' : 'Exportar CSV'}
               </button>
               
               <button
@@ -292,13 +295,13 @@ const Exportacao = () => {
                 className="btn-export btn-excel"
                 disabled={loading}
               >
-                {loading ? '⏳ Exportando...' : '📊 Exportar Excel'}
+                {loading ? 'Exportando...' : 'Exportar Excel'}
               </button>
             </div>
             
             <div className="info-box">
               <p>
-                <strong>💡 Dica:</strong> Se nenhum filtro for aplicado, 
+                <strong>Dica:</strong> Se nenhum filtro for aplicado, 
                 todos os registros serão exportados.
               </p>
             </div>

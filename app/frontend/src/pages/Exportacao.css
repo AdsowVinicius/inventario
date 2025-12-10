@@ -119,10 +119,28 @@
   margin: 2rem 0;
 }
 
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .preview-section h3 {
-  margin: 0 0 1rem 0;
+  margin: 0;
   color: #333;
   font-size: 1.1rem;
+}
+
+.preview-count {
+  background: #dc3545;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 
 .table-container {
@@ -162,6 +180,50 @@
 .preview-table td {
   padding: 0.75rem;
   color: #333;
+}
+
+/* Badges para dados */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.badge-contagem {
+  background-color: #dc3545;
+  color: white;
+}
+
+.badge-etiqueta {
+  background-color: #6c757d;
+  color: white;
+}
+
+.badge-planta {
+  background-color: #007bff;
+  color: white;
+}
+
+.material-cell {
+  font-weight: 500;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quantidade-cell {
+  font-weight: 600;
+  text-align: center;
+  color: #28a745;
+}
+
+.data-cell {
+  font-size: 0.8rem;
+  color: #666;
+  white-space: nowrap;
 }
 
 .preview-note {
