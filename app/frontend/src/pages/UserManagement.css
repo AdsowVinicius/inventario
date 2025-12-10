@@ -209,8 +209,58 @@
   color: white;
 }
 
+/* Status de bloqueio */
+.badge-bloqueado {
+  background-color: #dc3545;
+  color: white;
+  animation: pulse-red 2s infinite;
+}
+
+.badge-bloqueado-temp {
+  background-color: #fd7e14;
+  color: white;
+  animation: pulse-orange 1.5s infinite;
+}
+
+.badge-alerta {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.badge-ativo {
+  background-color: #28a745;
+  color: white;
+}
+
+@keyframes pulse-red {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes pulse-orange {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.usuario-bloqueado {
+  background-color: #fff5f5 !important;
+}
+
+.usuario-bloqueado:hover {
+  background-color: #ffe0e0 !important;
+}
+
 .btn-editar,
-.btn-deletar {
+.btn-deletar,
+.btn-desbloquear {
   border: none;
   padding: 0.5rem 1rem;
   font-size: 14px;
@@ -229,6 +279,15 @@
 
 .btn-editar:hover {
   background-color: #0056b3;
+}
+
+.btn-desbloquear {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-desbloquear:hover {
+  background-color: #218838;
 }
 
 .btn-deletar {

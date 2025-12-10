@@ -113,6 +113,7 @@ class UserResponse(BaseModel):
     planta: PlantaEnum
     role: RoleEnum = RoleEnum.CONTADOR
     primeiro_login: bool = False
+    bloqueado_permanente: bool = False
     
     class Config:
         from_attributes = True

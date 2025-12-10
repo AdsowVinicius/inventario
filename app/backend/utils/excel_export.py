@@ -11,12 +11,12 @@ def generate_csv(data: List[Dict[str, Any]], columns: List[str]) -> str:
     
     # Cabeçalhos traduzidos
     headers_pt = {
-        'etiqueta_inventario': 'Etiqueta',
-        'inventario_cod_texto': 'Inventario Cod',
-        'part_number_text': 'Part Number',
+        'etiqueta_inventario': 'Número da Contagem',
+        'inventario_cod_texto': 'Número da Etiqueta',
+        'part_number_text': 'Material',
         'planta_text': 'Planta',
         'quantidade': 'Quantidade',
-        'zona_invent_no_text': 'Zona Inventário',
+        'zona_invent_no_text': 'Zona',
         'created_date': 'Data Criação',
         'modified_date': 'Data Modificação',
         'created_by': 'Criado Por',
@@ -46,12 +46,12 @@ def generate_excel(data: List[Dict[str, Any]], columns: List[str]) -> bytes:
     
     # Cabeçalhos traduzidos
     headers_pt = {
-        'etiqueta_inventario': 'Etiqueta',
-        'inventario_cod_texto': 'Inventario Cod',
-        'part_number_text': 'Part Number',
+        'etiqueta_inventario': 'Número da Contagem',
+        'inventario_cod_texto': 'Número da Etiqueta',
+        'part_number_text': 'Material',
         'planta_text': 'Planta',
         'quantidade': 'Quantidade',
-        'zona_invent_no_text': 'Zona Inventário',
+        'zona_invent_no_text': 'Zona',
         'created_date': 'Data Criação',
         'modified_date': 'Data Modificação',
         'created_by': 'Criado Por',

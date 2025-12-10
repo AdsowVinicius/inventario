@@ -11,12 +11,21 @@ from core.security_utils import (
 from models.user import User
 from schemas.user import UserLogin, TokenResponse, UserResponse
 import logging
+from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/auth", tags=["Autenticação"])
 logger = logging.getLogger(__name__)
 
-# Controle de tentativas de login falhas
-_failed_attempts: dict = {}
+# ============================================================
+# SISTEMA DE BLOQUEIO PROGRESSIVO
+# ============================================================
+# Estrutura: {username: {attempts, lock_until, lock_cycles}}
+_login_tracker: dict = {}
+
+# Configurações
+MAX_ATTEMPTS = 5  # Tentativas antes de bloquear
+LOCK_DURATION_MINUTES = 2  # Tempo de bloqueio inicial
+MAX_LOCK_CYCLES = 3  # Após isso, bloqueio permanente
 
 
 def get_client_ip(request: Request) -> str:
@@ -27,27 +36,106 @@ def get_client_ip(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 
-def check_brute_force(ip: str, username: str) -> bool:
+def get_user_lock_status(username: str) -> dict:
     """
-    Verifica se há tentativa de brute force.
-    Bloqueia após 5 tentativas falhas em 5 minutos.
+    Retorna status de bloqueio do usuário.
+    Retorna: {is_locked, remaining_seconds, attempts, remaining_attempts, lock_cycles, is_permanent}
     """
-    key = f"{ip}:{username}"
-    attempts = _failed_attempts.get(key, 0)
-    return attempts >= 5
+    if username not in _login_tracker:
+        return {
+            "is_locked": False,
+            "remaining_seconds": 0,
+            "attempts": 0,
+            "remaining_attempts": MAX_ATTEMPTS,
+            "lock_cycles": 0,
+            "is_permanent": False
+        }
+    
+    tracker = _login_tracker[username]
+    lock_until = tracker.get("lock_until")
+    lock_cycles = tracker.get("lock_cycles", 0)
+    attempts = tracker.get("attempts", 0)
+    
+    # Verificar se bloqueio expirou
+    if lock_until:
+        now = datetime.now()
+        if now < lock_until:
+            remaining = (lock_until - now).total_seconds()
+            return {
+                "is_locked": True,
+                "remaining_seconds": int(remaining),
+                "attempts": attempts,
+                "remaining_attempts": 0,
+                "lock_cycles": lock_cycles,
+                "is_permanent": False
+            }
+        else:
+            # Bloqueio expirou - resetar tentativas mas manter ciclos
+            tracker["attempts"] = 0
+            tracker["lock_until"] = None
+    
+    return {
+        "is_locked": False,
+        "remaining_seconds": 0,
+        "attempts": tracker.get("attempts", 0),
+        "remaining_attempts": MAX_ATTEMPTS - tracker.get("attempts", 0),
+        "lock_cycles": lock_cycles,
+        "is_permanent": False
+    }
 
 
-def record_failed_attempt(ip: str, username: str):
-    """Registra tentativa de login falha"""
-    key = f"{ip}:{username}"
-    _failed_attempts[key] = _failed_attempts.get(key, 0) + 1
+def record_failed_attempt(username: str) -> dict:
+    """
+    Registra tentativa falha e retorna status atualizado.
+    Retorna info sobre bloqueio se aplicável.
+    """
+    if username not in _login_tracker:
+        _login_tracker[username] = {"attempts": 0, "lock_until": None, "lock_cycles": 0}
+    
+    tracker = _login_tracker[username]
+    tracker["attempts"] = tracker.get("attempts", 0) + 1
+    
+    result = {
+        "attempts": tracker["attempts"],
+        "remaining_attempts": MAX_ATTEMPTS - tracker["attempts"],
+        "is_locked": False,
+        "lock_duration_minutes": 0,
+        "lock_cycles": tracker.get("lock_cycles", 0),
+        "is_permanent_lock": False
+    }
+    
+    # Verificar se atingiu limite de tentativas
+    if tracker["attempts"] >= MAX_ATTEMPTS:
+        tracker["lock_cycles"] = tracker.get("lock_cycles", 0) + 1
+        lock_cycles = tracker["lock_cycles"]
+        
+        # Bloqueio progressivo: 2min, 4min, 6min...
+        lock_minutes = LOCK_DURATION_MINUTES * lock_cycles
+        tracker["lock_until"] = datetime.now() + timedelta(minutes=lock_minutes)
+        tracker["attempts"] = 0  # Reset para próximo ciclo
+        
+        result["is_locked"] = True
+        result["lock_duration_minutes"] = lock_minutes
+        result["lock_cycles"] = lock_cycles
+        result["remaining_attempts"] = 0
+        
+        # Verificar se excedeu ciclos máximos
+        if lock_cycles >= MAX_LOCK_CYCLES:
+            result["is_permanent_lock"] = True
+    
+    return result
 
 
-def clear_failed_attempts(ip: str, username: str):
-    """Limpa tentativas falhas após login bem sucedido"""
-    key = f"{ip}:{username}"
-    if key in _failed_attempts:
-        del _failed_attempts[key]
+def clear_login_tracker(username: str):
+    """Limpa tracker após login bem sucedido"""
+    if username in _login_tracker:
+        del _login_tracker[username]
+
+
+def admin_unlock_user(username: str):
+    """Admin desbloqueia usuário (limpa tracker e bloqueio permanente)"""
+    if username in _login_tracker:
+        del _login_tracker[username]
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -58,10 +146,13 @@ def login(
 ):
     """
     Endpoint de login com proteções contra brute force
-    
-    Verifica credenciais e retorna token JWT
+    Sistema de bloqueio progressivo:
+    - 5 tentativas -> bloqueio 2 minutos
+    - 5 tentativas -> bloqueio 4 minutos  
+    - 5 tentativas -> bloqueio 6 minutos + bloqueio permanente (só admin desbloqueia)
     """
     client_ip = get_client_ip(request)
+    username_clean = sanitize_string(credentials.user_name, max_length=100)
     
     # Verificar rate limit específico para login
     login_key = f"login:{client_ip}"
@@ -77,17 +168,30 @@ def login(
             detail="Muitas tentativas de login. Aguarde 1 minuto."
         )
     
-    # Verificar brute force por usuário
-    if check_brute_force(client_ip, credentials.user_name):
+    # Buscar usuário primeiro para verificar bloqueio permanente
+    user = db.query(User).filter(User.user_name == username_clean).first()
+    
+    # Verificar bloqueio permanente no banco de dados
+    if user and user.bloqueado_permanente:
         log_security_event(
-            "BRUTE_FORCE_DETECTED",
-            "Brute force attempt blocked",
-            ip_address=client_ip,
-            extra_data={"username": credentials.user_name[:20]}
+            "LOGIN_BLOCKED_PERMANENT",
+            "User permanently blocked",
+            user_id=user.id,
+            ip_address=client_ip
         )
         raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Conta bloqueada permanentemente. Entre em contato com um administrador."
+        )
+    
+    # Verificar bloqueio temporário
+    lock_status = get_user_lock_status(username_clean)
+    if lock_status["is_locked"]:
+        minutes = lock_status["remaining_seconds"] // 60
+        seconds = lock_status["remaining_seconds"] % 60
+        raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Conta temporariamente bloqueada. Aguarde alguns minutos."
+            detail=f"Conta temporariamente bloqueada. Aguarde {minutes}min {seconds}s."
         )
     
     # Validar input contra SQL Injection
@@ -104,41 +208,67 @@ def login(
             detail="Caracteres inválidos no nome de usuário"
         )
     
-    # Sanitizar username
-    username_clean = sanitize_string(credentials.user_name, max_length=100)
-    
-    # Buscar usuário - usando parâmetros do ORM (protegido contra SQL injection)
-    user = db.query(User).filter(User.user_name == username_clean).first()
-    
+    # Usuário não encontrado
     if not user:
-        record_failed_attempt(client_ip, credentials.user_name)
+        lock_result = record_failed_attempt(username_clean)
+        remaining = lock_result["remaining_attempts"]
+        
         log_security_event(
             "LOGIN_FAILED",
             "User not found",
             ip_address=client_ip,
             extra_data={"username": credentials.user_name[:20]}
         )
+        
+        if lock_result["is_locked"]:
+            if lock_result["is_permanent_lock"]:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"Conta bloqueada permanentemente após {MAX_LOCK_CYCLES} ciclos. Entre em contato com um administrador."
+                )
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Muitas tentativas falhas. Conta bloqueada por {lock_result['lock_duration_minutes']} minutos."
+            )
+        
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuário ou senha incorretos"
+            detail=f"Usuário ou senha incorretos. Restam {remaining} tentativas."
         )
     
     # Verificar senha
     if not verify_password(credentials.senha, user.senha_hash):
-        record_failed_attempt(client_ip, credentials.user_name)
+        lock_result = record_failed_attempt(username_clean)
+        remaining = lock_result["remaining_attempts"]
+        
         log_security_event(
             "LOGIN_FAILED",
             "Invalid password",
             user_id=user.id,
             ip_address=client_ip
         )
+        
+        if lock_result["is_locked"]:
+            if lock_result["is_permanent_lock"]:
+                # Marcar como bloqueado permanente no banco
+                user.bloqueado_permanente = True
+                db.commit()
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"Conta bloqueada permanentemente após {MAX_LOCK_CYCLES} ciclos de tentativas. Entre em contato com um administrador."
+                )
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Muitas tentativas falhas. Conta bloqueada por {lock_result['lock_duration_minutes']} minutos. (Ciclo {lock_result['lock_cycles']}/{MAX_LOCK_CYCLES})"
+            )
+        
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuário ou senha incorretos"
+            detail=f"Usuário ou senha incorretos. Restam {remaining} tentativas."
         )
     
-    # Login bem sucedido - limpar tentativas falhas
-    clear_failed_attempts(client_ip, credentials.user_name)
+    # Login bem sucedido - limpar tracker
+    clear_login_tracker(username_clean)
     
     # Criar token JWT
     token_data = {
@@ -255,3 +385,106 @@ def alterar_senha(
     )
     
     return {"message": "Senha alterada com sucesso", "primeiro_login": False}
+
+
+# ============================================================
+# ENDPOINT PARA ADMIN DESBLOQUEAR USUÁRIO
+# ============================================================
+from core.security import require_role
+
+@router.post("/desbloquear/{user_id}")
+def desbloquear_usuario(
+    user_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("ADMIN"))
+):
+    """
+    Desbloqueia um usuário bloqueado.
+    Apenas ADMIN pode usar este endpoint.
+    Remove bloqueio permanente do banco e limpa o tracker de tentativas.
+    """
+    client_ip = get_client_ip(request)
+    
+    # Buscar usuário a ser desbloqueado
+    user = db.query(User).filter(User.id == user_id).first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuário não encontrado"
+        )
+    
+    # Limpar bloqueio permanente no banco
+    was_blocked = user.bloqueado_permanente
+    user.bloqueado_permanente = False
+    db.commit()
+    
+    # Limpar tracker de tentativas na memória
+    admin_unlock_user(user.user_name)
+    
+    log_security_event(
+        "USER_UNLOCKED",
+        f"User {user.user_name} unlocked by admin {current_user.user_name}",
+        user_id=user.id,
+        ip_address=client_ip
+    )
+    
+    logger.info(f"Usuário {user.user_name} desbloqueado por {current_user.user_name}")
+    
+    return {
+        "message": f"Usuário {user.user_name} desbloqueado com sucesso",
+        "was_permanently_blocked": was_blocked
+    }
+
+
+@router.get("/status-bloqueio/{username}")
+def verificar_status_bloqueio(
+    username: str,
+    current_user: User = Depends(require_role("ADMIN"))
+):
+    """
+    Verifica status de bloqueio de um usuário.
+    Apenas ADMIN pode usar este endpoint.
+    """
+    username_clean = sanitize_string(username, max_length=100)
+    status = get_user_lock_status(username_clean)
+    
+    return {
+        "username": username_clean,
+        "is_temporarily_locked": status["is_locked"],
+        "remaining_seconds": status["remaining_seconds"],
+        "attempts": status["attempts"],
+        "remaining_attempts": status["remaining_attempts"],
+        "lock_cycles": status["lock_cycles"],
+        "max_cycles_before_permanent": MAX_LOCK_CYCLES
+    }
+
+
+@router.get("/status-bloqueios-todos")
+def listar_todos_status_bloqueio(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("ADMIN"))
+):
+    """
+    Lista status de bloqueio de todos os usuários.
+    Retorna um dicionário com username como chave.
+    Apenas ADMIN pode usar este endpoint.
+    """
+    # Buscar todos os usuários
+    usuarios = db.query(User).all()
+    
+    resultado = {}
+    for user in usuarios:
+        status = get_user_lock_status(user.user_name)
+        resultado[user.user_name] = {
+            "user_id": user.id,
+            "is_temporarily_locked": status["is_locked"],
+            "remaining_seconds": status["remaining_seconds"],
+            "attempts": status["attempts"],
+            "remaining_attempts": status["remaining_attempts"],
+            "lock_cycles": status["lock_cycles"],
+            "is_permanently_blocked": user.bloqueado_permanente
+        }
+    
+    return resultado

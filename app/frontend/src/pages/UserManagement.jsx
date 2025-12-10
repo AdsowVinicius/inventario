@@ -13,6 +13,7 @@ const ROLES = [
 const UserManagement = () => {
   const currentUser = authService.getCurrentUser();
   const [usuarios, setUsuarios] = useState([]);
+  const [statusBloqueios, setStatusBloqueios] = useState({});
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -45,7 +46,30 @@ const UserManagement = () => {
     }
     
     carregarUsuarios();
+    
+    // Se for admin, carregar status de bloqueios e atualizar a cada 30 segundos
+    if (currentUser.role === 'ADMIN') {
+      carregarStatusBloqueios();
+      const interval = setInterval(carregarStatusBloqueios, 30000);
+      return () => clearInterval(interval);
+    }
   }, []);
+
+  const carregarStatusBloqueios = async () => {
+    try {
+      const response = await fetch('http://10.200.10.57:8000/auth/status-bloqueios-todos', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setStatusBloqueios(data);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar status de bloqueios:', error);
+    }
+  };
 
   const carregarUsuarios = async () => {
     setLoading(true);
@@ -219,6 +243,44 @@ const UserManagement = () => {
     }
   };
 
+  const handleDesbloquear = async (usuario) => {
+    if (!window.confirm(`Deseja desbloquear o usuário "${usuario.user_name}"?`)) {
+      return;
+    }
+
+    setLoading(true);
+    setMessage(null);
+    try {
+      const response = await fetch(`http://10.200.10.57:8000/auth/desbloquear/${usuario.id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+        return;
+      }
+
+      if (response.ok) {
+        setMessage({ type: 'success', text: `Usuário ${usuario.user_name} desbloqueado com sucesso!` });
+        carregarUsuarios();
+        carregarStatusBloqueios();
+      } else {
+        const data = await response.json().catch(() => ({}));
+        setMessage({ type: 'error', text: data.detail || 'Erro ao desbloquear usuário' });
+      }
+    } catch (error) {
+      console.error('Erro ao desbloquear usuário:', error);
+      setMessage({ type: 'error', text: 'Erro ao desbloquear usuário' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getRoleLabel = (role) => {
     const roleObj = ROLES.find(r => r.value === role);
     return roleObj ? roleObj.label : role;
@@ -335,13 +397,14 @@ const UserManagement = () => {
                 <th>Departamento</th>
                 <th>Planta</th>
                 <th>Perfil</th>
+                <th>Status</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>
               {usuariosFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="no-results">
+                  <td colSpan="8" className="no-results">
                     {usuarios.length === 0 
                       ? 'Nenhum usuário cadastrado'
                       : 'Nenhum usuário encontrado com os filtros aplicados'
@@ -349,8 +412,22 @@ const UserManagement = () => {
                   </td>
                 </tr>
               ) : (
-                usuariosFiltrados.map(usuario => (
-                  <tr key={usuario.id}>
+                usuariosFiltrados.map(usuario => {
+                  const statusBlq = statusBloqueios[usuario.user_name] || {};
+                  const estaBloqueadoTemp = statusBlq.is_temporarily_locked;
+                  const estaBloqueadoPerm = usuario.bloqueado_permanente;
+                  const temTentativas = statusBlq.attempts > 0;
+                  const tempoRestante = statusBlq.remaining_seconds || 0;
+                  
+                  // Formatar tempo restante
+                  const formatarTempo = (segundos) => {
+                    const min = Math.floor(segundos / 60);
+                    const sec = segundos % 60;
+                    return `${min}:${sec.toString().padStart(2, '0')}`;
+                  };
+                  
+                  return (
+                  <tr key={usuario.id} className={estaBloqueadoPerm || estaBloqueadoTemp ? 'usuario-bloqueado' : ''}>
                     <td>{usuario.user_name}</td>
                     <td>{usuario.nome_completo || '-'}</td>
                     <td>{usuario.email || '-'}</td>
@@ -362,6 +439,21 @@ const UserManagement = () => {
                       </span>
                     </td>
                     <td>
+                      {estaBloqueadoPerm ? (
+                        <span className="badge badge-bloqueado">Bloqueado Permanente</span>
+                      ) : estaBloqueadoTemp ? (
+                        <span className="badge badge-bloqueado-temp">
+                          Bloqueado ({formatarTempo(tempoRestante)})
+                        </span>
+                      ) : temTentativas ? (
+                        <span className="badge badge-alerta">
+                          {statusBlq.remaining_attempts} tentativas
+                        </span>
+                      ) : (
+                        <span className="badge badge-ativo">Ativo</span>
+                      )}
+                    </td>
+                    <td>
                       {podeEditarUsuario(usuario) && (
                         <>
                           <button 
@@ -370,6 +462,14 @@ const UserManagement = () => {
                           >
                             Editar
                           </button>
+                          {(estaBloqueadoPerm || estaBloqueadoTemp || temTentativas) && currentUser.role === 'ADMIN' && (
+                            <button 
+                              className="btn-desbloquear"
+                              onClick={() => handleDesbloquear(usuario)}
+                            >
+                              Desbloquear
+                            </button>
+                          )}
                           <button 
                             className="btn-deletar"
                             onClick={() => handleDelete(usuario)}
@@ -381,7 +481,8 @@ const UserManagement = () => {
                       )}
                     </td>
                   </tr>
-                ))
+                  );
+                })
               )}
             </tbody>
           </table>

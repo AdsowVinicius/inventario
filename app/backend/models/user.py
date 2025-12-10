@@ -33,6 +33,7 @@ class User(Base):
     planta = Column(Enum(PlantaEnum), nullable=False)
     role = Column(Enum(RoleEnum), nullable=False, default=RoleEnum.CONTADOR)
     primeiro_login = Column(Boolean, nullable=False, default=True)
+    bloqueado_permanente = Column(Boolean, nullable=False, default=False)
     
     def __repr__(self):
         return f"<User(id={self.id}, user_name={self.user_name}, planta={self.planta}, role={self.role})>"
