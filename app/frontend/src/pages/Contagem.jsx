@@ -47,9 +47,26 @@ const ZONAS_POR_PLANTA = {
     { codigo: 'I', descricao: 'Engenharia/Qualidade' }
   ],
   'PB82': [
-    { codigo: 'A', descricao: 'Almoxarifado' },
-    { codigo: 'B', descricao: 'Estoque' },
-    { codigo: 'C', descricao: 'Produção' }
+    { codigo: 'A', descricao: 'Wheel Flare - Solda | Cola' },
+    { codigo: 'B', descricao: 'JIS 2' },
+    { codigo: 'C', descricao: 'JIS 1' },
+    { codigo: 'D', descricao: 'Wheel Flare - Montado' },
+    { codigo: 'E', descricao: 'Wheel Flare - Montado' },
+    { codigo: 'F', descricao: 'Wheel Flare - Semiacabado | Pintado' },
+    { codigo: 'G', descricao: 'RT02' },
+    { codigo: 'H', descricao: 'Almoxarifados Diretos' },
+    { codigo: 'I', descricao: 'Indiretos' },
+    { codigo: 'J', descricao: 'Periféricos Injetados' },
+    { codigo: 'K', descricao: 'Semi Acabado Injetado' },
+    { codigo: 'L', descricao: 'Subcomponente Injetado' },
+    { codigo: 'M', descricao: 'Moretto | Silos' },
+    { codigo: 'N', descricao: 'Fracionados - Ilha da Produção' },
+    { codigo: 'O', descricao: 'Semi Acabado' },
+    { codigo: 'P', descricao: 'Qualidade' },
+    { codigo: 'Q', descricao: 'Wheel Flare - Qualidade' },
+    { codigo: 'R', descricao: 'Engenharia' },
+    { codigo: 'S', descricao: 'JIT' },
+    { codigo: 'T', descricao: 'Obsoleto' }
   ]
 };
 
