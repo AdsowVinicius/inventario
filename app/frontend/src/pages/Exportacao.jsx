@@ -3,7 +3,7 @@ import { authService, exportacaoService } from '../services/api';
 import Navbar from '../components/Navbar';
 import './Exportacao.css';
 
-const PLANTAS = ['PS01', 'PS02', 'PS03', 'PS05', 'PS09', 'PB82'];
+const PLANTAS = ['PS01', 'PS02', 'PS03', 'PS05', 'PB82'];
 
 const Exportacao = () => {
   const [filtros, setFiltros] = useState({
