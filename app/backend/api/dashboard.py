@@ -33,6 +33,12 @@ class KPIResponse(BaseModel):
     etiquetas_com_contagem_2: int
     percentual_contagem_1: float
     percentual_contagem_2: float
+    # Novas métricas de materiais
+    materiais_unicos: int
+    materiais_unicos_1: int  # Materiais únicos na 1ª contagem
+    materiais_unicos_2: int  # Materiais únicos na 2ª contagem
+    percentual_materiais_1: float  # % de materiais contados na 1ª
+    percentual_materiais_2: float  # % de materiais contados na 2ª
     
     
 class ContagemDivergenteResponse(BaseModel):
@@ -76,6 +82,15 @@ class ContagemPorPlantaResponse(BaseModel):
     divergencias_resolvidas: int  # divergências com 3ª contagem
 
 
+class MaterialMultiplasEtiquetasResponse(BaseModel):
+    part_number: str
+    planta: str
+    total_etiquetas: int
+    quantidade_1: float
+    quantidade_2: float
+    divergencia: float
+
+
 class DashboardCompleto(BaseModel):
     kpis: KPIResponse
     divergentes: List[ContagemDivergenteResponse]
@@ -83,6 +98,7 @@ class DashboardCompleto(BaseModel):
     contagens_por_usuario: List[ContagemPorUsuarioResponse]
     contagens_por_planta: List[ContagemPorPlantaResponse]
     resumo_divergencias: dict
+    materiais_multiplas_etiquetas: List[MaterialMultiplasEtiquetasResponse]
 
 
 def verificar_acesso_dashboard(current_user: User):
@@ -162,6 +178,34 @@ def obter_kpis(
     percentual_contagem_1 = round((etiquetas_com_contagem_1 / total_itens_base * 100), 2) if total_itens_base > 0 else 0.0
     percentual_contagem_2 = round((etiquetas_com_contagem_2 / total_itens_base * 100), 2) if total_itens_base > 0 else 0.0
     
+    # NOVAS MÉTRICAS: Materiais únicos (Part Numbers distintos)
+    query_materiais = db.query(
+        func.count(distinct(FormsContagem.part_number))
+    )
+    if planta:
+        query_materiais = query_materiais.filter(FormsContagem.planta == planta)
+    materiais_unicos = query_materiais.scalar() or 0
+    
+    # Materiais únicos na 1ª contagem
+    query_materiais_1 = db.query(
+        func.count(distinct(FormsContagem.part_number))
+    ).filter(FormsContagem.num_contagem == 1)
+    if planta:
+        query_materiais_1 = query_materiais_1.filter(FormsContagem.planta == planta)
+    materiais_unicos_1 = query_materiais_1.scalar() or 0
+    
+    # Materiais únicos na 2ª contagem
+    query_materiais_2 = db.query(
+        func.count(distinct(FormsContagem.part_number))
+    ).filter(FormsContagem.num_contagem == 2)
+    if planta:
+        query_materiais_2 = query_materiais_2.filter(FormsContagem.planta == planta)
+    materiais_unicos_2 = query_materiais_2.scalar() or 0
+    
+    # Percentual de materiais contados (baseado nos itens cadastrados)
+    percentual_materiais_1 = round((materiais_unicos_1 / total_itens_base * 100), 2) if total_itens_base > 0 else 0.0
+    percentual_materiais_2 = round((materiais_unicos_2 / total_itens_base * 100), 2) if total_itens_base > 0 else 0.0
+    
     return KPIResponse(
         total_contagens=total_contagens,
         total_etiquetas=total_etiquetas,
@@ -173,7 +217,12 @@ def obter_kpis(
         etiquetas_com_contagem_1=etiquetas_com_contagem_1,
         etiquetas_com_contagem_2=etiquetas_com_contagem_2,
         percentual_contagem_1=percentual_contagem_1,
-        percentual_contagem_2=percentual_contagem_2
+        percentual_contagem_2=percentual_contagem_2,
+        materiais_unicos=materiais_unicos,
+        materiais_unicos_1=materiais_unicos_1,
+        materiais_unicos_2=materiais_unicos_2,
+        percentual_materiais_1=percentual_materiais_1,
+        percentual_materiais_2=percentual_materiais_2
     )
 
 
@@ -480,6 +529,70 @@ def obter_contagens_por_planta(
     return resultado
 
 
+@router.get("/materiais-multiplas-etiquetas", response_model=List[MaterialMultiplasEtiquetasResponse])
+def obter_materiais_multiplas_etiquetas(
+    planta: Optional[str] = Query(None, description="Filtrar por planta"),
+    limite: int = Query(20, ge=1, le=100),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Retorna materiais (Part Numbers) que aparecem em múltiplas etiquetas.
+    Consolida a quantidade total por material e mostra divergências.
+    """
+    verificar_acesso_dashboard(current_user)
+    
+    # Buscar part numbers com mais de uma etiqueta
+    query = db.query(
+        FormsContagem.part_number,
+        FormsContagem.planta,
+        func.count(distinct(FormsContagem.etiqueta_inventario)).label('total_etiquetas')
+    ).group_by(
+        FormsContagem.part_number,
+        FormsContagem.planta
+    ).having(
+        func.count(distinct(FormsContagem.etiqueta_inventario)) > 1
+    )
+    
+    if planta:
+        query = query.filter(FormsContagem.planta == planta)
+    
+    materiais = query.order_by(func.count(distinct(FormsContagem.etiqueta_inventario)).desc()).limit(limite).all()
+    
+    resultado = []
+    
+    for mat in materiais:
+        # Somar quantidades da 1ª contagem para este material
+        qtd_1 = db.query(func.sum(FormsContagem.qtd)).filter(
+            FormsContagem.part_number == mat.part_number,
+            FormsContagem.planta == mat.planta,
+            FormsContagem.num_contagem == 1
+        ).scalar() or 0
+        
+        # Somar quantidades da 2ª contagem para este material
+        qtd_2 = db.query(func.sum(FormsContagem.qtd)).filter(
+            FormsContagem.part_number == mat.part_number,
+            FormsContagem.planta == mat.planta,
+            FormsContagem.num_contagem == 2
+        ).scalar() or 0
+        
+        divergencia = float(qtd_2) - float(qtd_1)
+        
+        resultado.append(MaterialMultiplasEtiquetasResponse(
+            part_number=mat.part_number,
+            planta=mat.planta,
+            total_etiquetas=mat.total_etiquetas,
+            quantidade_1=float(qtd_1),
+            quantidade_2=float(qtd_2),
+            divergencia=divergencia
+        ))
+    
+    # Ordenar por divergência absoluta (maior primeiro)
+    resultado.sort(key=lambda x: abs(x.divergencia), reverse=True)
+    
+    return resultado
+
+
 @router.get("/completo", response_model=DashboardCompleto)
 def obter_dashboard_completo(
     planta: Optional[str] = Query(None, description="Filtrar por planta"),
@@ -519,11 +632,15 @@ def obter_dashboard_completo(
         ) if kpis.total_etiquetas > 0 else 0
     }
     
+    # NOVO: Materiais com múltiplas etiquetas
+    materiais_multiplas = obter_materiais_multiplas_etiquetas(planta, 20, db, current_user)
+    
     return DashboardCompleto(
         kpis=kpis,
         divergentes=divergentes,
         progresso_zonas=progresso_zonas,
         contagens_por_usuario=contagens_usuario,
         contagens_por_planta=contagens_planta,
-        resumo_divergencias=resumo_divergencias
+        resumo_divergencias=resumo_divergencias,
+        materiais_multiplas_etiquetas=materiais_multiplas
     )

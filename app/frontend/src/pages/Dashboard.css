@@ -230,9 +230,30 @@
 }
 
 .progresso-detalhe {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #666;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detalhe-principal {
+  color: #1a237e;
+  font-size: 0.95rem;
+}
+
+.detalhe-secundario {
+  color: #999;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.progresso-base {
+  text-align: center;
+  color: #666;
+  margin: -10px 0 15px 0;
+  font-size: 0.95rem;
 }
 
 /* Tabs */
@@ -576,5 +597,133 @@
   .dashboard-table th,
   .dashboard-table td {
     padding: 8px;
+  }
+}
+
+/* ========== KPIs de Materiais ========== */
+.kpis-materiais {
+  background: linear-gradient(135deg, #f8f9ff 0%, #e8eaf6 100%);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid #c5cae9;
+}
+
+.kpis-materiais h3 {
+  margin: 0 0 16px 0;
+  color: #1a237e;
+  font-size: 1.1rem;
+}
+
+.kpis-materiais-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.kpi-material-card {
+  background: white;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e0e0e0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-material-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(26, 35, 126, 0.15);
+}
+
+.kpi-material-card.highlight-diff {
+  border-left: 4px solid #ff9800;
+  background: linear-gradient(135deg, #fff8e1 0%, #ffffff 100%);
+}
+
+.kpi-material-icon {
+  font-size: 1.8rem;
+}
+
+.kpi-material-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-material-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a237e;
+}
+
+.kpi-material-value.text-success {
+  color: #2e7d32;
+}
+
+.kpi-material-value.text-danger {
+  color: #c62828;
+}
+
+.kpi-material-label {
+  font-size: 0.8rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ========== Seção de Materiais ========== */
+.materiais-section {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.materiais-section h3 {
+  margin: 0 0 8px 0;
+  color: #1a237e;
+}
+
+.section-description {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.row-warning {
+  background: #fff8e1 !important;
+}
+
+.row-warning:hover {
+  background: #ffecb3 !important;
+}
+
+.td-info {
+  background: #e3f2fd;
+  color: #1565c0;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Responsivo para KPIs de Materiais */
+@media (max-width: 1024px) {
+  .kpis-materiais-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .kpis-materiais-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .kpi-material-card {
+    padding: 12px;
+  }
+  
+  .kpi-material-value {
+    font-size: 1.2rem;
   }
 }

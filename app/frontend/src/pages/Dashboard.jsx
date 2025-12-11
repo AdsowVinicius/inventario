@@ -182,39 +182,51 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Progresso de Contagens 1 e 2 */}
+      {/* Progresso de Contagens - BASEADO EM MATERIAIS ÚNICOS */}
       <div className="progresso-contagens">
-        <h3>📊 Progresso das Contagens (Base: {formatNumber(kpis.total_itens_base)} itens)</h3>
+        <h3>📊 Progresso das Contagens</h3>
+        <p className="progresso-base">Base: <strong>{formatNumber(kpis.total_itens_base)}</strong> materiais cadastrados</p>
+        
         <div className="progresso-grid">
           <div className="progresso-card">
             <div className="progresso-header">
               <span className="progresso-titulo">1ª Contagem</span>
-              <span className="progresso-porcentagem">{kpis.percentual_contagem_1 || 0}%</span>
+              <span className="progresso-porcentagem">{kpis.percentual_materiais_1 || 0}%</span>
             </div>
             <div className="progresso-bar-container">
               <div 
                 className="progresso-bar contagem-1" 
-                style={{ width: `${Math.min(kpis.percentual_contagem_1 || 0, 100)}%` }}
+                style={{ width: `${Math.min(kpis.percentual_materiais_1 || 0, 100)}%` }}
               ></div>
             </div>
             <div className="progresso-detalhe">
-              <span>{formatNumber(kpis.etiquetas_com_contagem_1 || 0)} de {formatNumber(kpis.total_itens_base)} itens</span>
+              <span className="detalhe-principal">
+                <strong>{formatNumber(kpis.materiais_unicos_1 || 0)}</strong> materiais contados
+              </span>
+              <span className="detalhe-secundario">
+                (em {formatNumber(kpis.etiquetas_com_contagem_1 || 0)} etiquetas)
+              </span>
             </div>
           </div>
           
           <div className="progresso-card">
             <div className="progresso-header">
               <span className="progresso-titulo">2ª Contagem</span>
-              <span className="progresso-porcentagem">{kpis.percentual_contagem_2 || 0}%</span>
+              <span className="progresso-porcentagem">{kpis.percentual_materiais_2 || 0}%</span>
             </div>
             <div className="progresso-bar-container">
               <div 
                 className="progresso-bar contagem-2" 
-                style={{ width: `${Math.min(kpis.percentual_contagem_2 || 0, 100)}%` }}
+                style={{ width: `${Math.min(kpis.percentual_materiais_2 || 0, 100)}%` }}
               ></div>
             </div>
             <div className="progresso-detalhe">
-              <span>{formatNumber(kpis.etiquetas_com_contagem_2 || 0)} de {formatNumber(kpis.total_itens_base)} itens</span>
+              <span className="detalhe-principal">
+                <strong>{formatNumber(kpis.materiais_unicos_2 || 0)}</strong> materiais contados
+              </span>
+              <span className="detalhe-secundario">
+                (em {formatNumber(kpis.etiquetas_com_contagem_2 || 0)} etiquetas)
+              </span>
             </div>
           </div>
         </div>
