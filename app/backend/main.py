@@ -9,6 +9,10 @@ from api import auth_router, itens_router, contagem_router, exportacao_router, u
 import logging
 import time
 from datetime import datetime
+import pytz
+
+# Fuso horário de Brasília
+BRAZIL_TZ = pytz.timezone('America/Sao_Paulo')
 
 # Configurar logging
 logging.basicConfig(
