@@ -241,6 +241,13 @@ export const contagemService = {
     return contagemService.sugerirNumero(pn, etiqueta, planta);
   },
   
+  verificarEtiqueta: async (etiqueta, planta, numContagem) => {
+    const response = await api.get('/contagem/verificar-etiqueta', {
+      params: { etiqueta, planta, num_contagem: numContagem }
+    });
+    return response.data;
+  },
+  
   salvar: async (dados) => {
     const response = await api.post('/contagem/salvar', dados);
     return response.data;

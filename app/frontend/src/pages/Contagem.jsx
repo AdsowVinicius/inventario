@@ -8,65 +8,70 @@ const PLANTAS = ['PS01', 'PS02', 'PS03', 'PS05', 'PB82'];
 // Zonas específicas por planta
 const ZONAS_POR_PLANTA = {
   'PS01': [
-    { codigo: 'A', descricao: 'Acabado' },
-    { codigo: 'B', descricao: 'Semi-Acabado' },
-    { codigo: 'C', descricao: 'Matéria-Prima/Embalagens' },
-    { codigo: 'D', descricao: 'Almoxarifado' },
-    { codigo: 'E', descricao: 'Almox/Manutenção' },
-    { codigo: 'F', descricao: 'Câmara-Fria' },
-    { codigo: 'G', descricao: 'Qualidade' },
-    { codigo: 'H', descricao: 'Engenharia' }
+    { codigo: 'A', descricao: 'Acabado - FG01' },
+    { codigo: 'B', descricao: 'Semi-Acabado - PR01' },
+    { codigo: 'C', descricao: 'Matéria-Prima-PR01' },
+    { codigo: 'D', descricao: 'Embalagens compradas-GE03' },
+    { codigo: 'E', descricao: 'Almoxarifado-GE02' },
+    { codigo: 'F', descricao: 'Almox/Manutenção-GE02' },
+    { codigo: 'G', descricao: 'Câmara-Fria-PR01' },
+    { codigo: 'H', descricao: 'Qualidade-PR97' },
+    { codigo: 'I', descricao: 'Engenharia-FG99' },
+    
+
+
   ],
   'PS02': [
-    { codigo: 'A', descricao: 'G2' },
-    { codigo: 'B', descricao: 'Qualidade' },
-    { codigo: 'C', descricao: 'Sala de Tintas' },
-    { codigo: 'D', descricao: 'Almoxarifado de Tintas' },
-    { codigo: 'E', descricao: 'Almoxarifado' },
-    { codigo: 'F', descricao: 'Almox/Manutenção' },
-    { codigo: 'G', descricao: 'Polimento/Retoque' },
-    { codigo: 'H', descricao: 'Montagem' },
-    { codigo: 'I', descricao: 'Estoque Acabado' }
+    { codigo: 'A', descricao: 'G2 - PR01' },
+    { codigo: 'B', descricao: 'Qualidade-PR99' },
+    { codigo: 'C', descricao: 'Sala de Tintas-PR01' },
+    { codigo: 'D', descricao: 'Almoxarifado de Tintas-GE03' },
+    { codigo: 'E', descricao: 'Almoxarifado-GE02' },
+    { codigo: 'F', descricao: 'Almox/Manutenção-GE02' },
+    { codigo: 'G', descricao: 'Polimento/Retoque-FG01' },
+    { codigo: 'H', descricao: 'Montagem-FG01' },
+    { codigo: 'I', descricao: 'Estoque Acabado-FG01' }
   ],
   'PS03': [
-    { codigo: 'A', descricao: 'Acabado' },
-    { codigo: 'B', descricao: 'Semi-Acabado' },
-    { codigo: 'C', descricao: 'Componentes/Embalagens' },
-    { codigo: 'D', descricao: 'Sala de Tintas' },
-    { codigo: 'E', descricao: 'Almoxarifado' }
+    { codigo: 'A', descricao: 'Acabado-FG01' },
+    { codigo: 'B', descricao: 'Semi-Acabado-PR02' },
+    { codigo: 'C', descricao: 'Componentes/Embalagens-PR02' },
+    { codigo: 'D', descricao: 'Sala de Tintas-PR02' },
+    { codigo: 'E', descricao: 'Almoxarifado-GE02' }
   ],
   'PS05': [
-    { codigo: 'A', descricao: 'Almoxarifado' },
-    { codigo: 'B', descricao: 'Estoque Acabado' },
-    { codigo: 'C', descricao: 'Montagem' },
-    { codigo: 'D', descricao: 'Colagem' },
-    { codigo: 'E', descricao: 'Semi-Acabado' },
-    { codigo: 'F', descricao: 'Sala de Materiais' },
-    { codigo: 'G', descricao: 'G2' },
-    { codigo: 'H', descricao: 'Obsoleto' },
-    { codigo: 'I', descricao: 'Engenharia/Qualidade' }
+    { codigo: 'A', descricao: 'Almoxarifado-GE02' },
+    { codigo: 'B', descricao: 'Estoque Acabado-FG01' },
+    { codigo: 'C', descricao: 'Montagem-PR01' },
+    { codigo: 'D', descricao: 'Colagem-PR01' },
+    { codigo: 'E', descricao: 'Semi-Acabado-PR01' },
+    { codigo: 'F', descricao: 'Sala de Materiais-PR01' },
+    { codigo: 'G', descricao: 'G2-PR02' },
+    { codigo: 'H', descricao: 'Obsoleto-OB01' },
+    { codigo: 'I', descricao: 'Engenharia/Qualidade-FG99' }
   ],
   'PB82': [
-    { codigo: 'A', descricao: 'Wheel Flare - Solda | Cola' },
-    { codigo: 'B', descricao: 'JIS 2' },
-    { codigo: 'C', descricao: 'JIS 1' },
-    { codigo: 'D', descricao: 'Wheel Flare - Montado' },
-    { codigo: 'E', descricao: 'Wheel Flare - Montado' },
-    { codigo: 'F', descricao: 'Wheel Flare - Semiacabado | Pintado' },
+    { codigo: 'A', descricao: 'Wheel Flare - Solda | Cola PR01' },
+    { codigo: 'B', descricao: 'Sequenciamento JIS -FG01' },
+    { codigo: 'C', descricao: 'Gravitacional|WMS - FG01' },
+    { codigo: 'D', descricao: 'Wheel Flare - Montado-FG01' },
+    { codigo: 'E', descricao: 'Wheel Flare - Montado-FG01' },
+    { codigo: 'F', descricao: 'Wheel Flare - Semiacabado | Pintado PR01' },
     { codigo: 'G', descricao: 'RT02' },
-    { codigo: 'H', descricao: 'Almoxarifados Diretos' },
-    { codigo: 'I', descricao: 'Indiretos' },
-    { codigo: 'J', descricao: 'Periféricos Injetados' },
-    { codigo: 'K', descricao: 'Semi Acabado Injetado' },
-    { codigo: 'L', descricao: 'Subcomponente Injetado' },
-    { codigo: 'M', descricao: 'Moretto | Silos' },
-    { codigo: 'N', descricao: 'Fracionados - Ilha da Produção' },
-    { codigo: 'O', descricao: 'Semi Acabado' },
-    { codigo: 'P', descricao: 'Qualidade' },
-    { codigo: 'Q', descricao: 'Wheel Flare - Qualidade' },
-    { codigo: 'R', descricao: 'Engenharia' },
-    { codigo: 'S', descricao: 'JIT' },
-    { codigo: 'T', descricao: 'Obsoleto' }
+    { codigo: 'H', descricao: 'Almoxarifados Diretos GE01' },
+    { codigo: 'I', descricao: 'Indiretos GE02' },
+    { codigo: 'J', descricao: 'Periféricos Injetados PR01' },
+    { codigo: 'K', descricao: 'Semi Acabado Injetado PR01' },
+    { codigo: 'L', descricao: 'Subcomponente Injetado PR01' },
+    { codigo: 'M', descricao: 'Moretto | Silos PR01' },
+    { codigo: 'N', descricao: 'Fracionados - Ilha da Produção PR01' },
+    { codigo: 'O', descricao: 'Semi Acabado PR02' },
+    { codigo: 'P', descricao: 'Qualidade PR97' },
+    { codigo: 'Q', descricao: 'Wheel Flare - Qualidade PR97' },
+    { codigo: 'R', descricao: 'Engenharia FG99' },
+    { codigo: 'S', descricao: 'JIT | CDC FG01' },
+    { codigo: 'T', descricao: 'Obsoleto | CDC OB01' },
+    { codigo: 'U', descricao: 'Químicos | Área Externa GE02' },
   ]
 };
 
@@ -115,6 +120,11 @@ const Contagem = () => {
   
   // Histórico de contagens realizadas na sessão
   const [historicoContagens, setHistoricoContagens] = useState([]);
+  
+  // Estado para verificar etiqueta duplicada
+  const [etiquetaDuplicada, setEtiquetaDuplicada] = useState(false);
+  const [mensagemDuplicada, setMensagemDuplicada] = useState('');
+  const [verificandoEtiqueta, setVerificandoEtiqueta] = useState(false);
   
   // Estados para autocomplete do Part Number
   const [sugestoesPn, setSugestoesPn] = useState([]);
@@ -351,16 +361,76 @@ const Contagem = () => {
     }));
     setMessage(null);
     setLimiteAtingido(false);
+    
+    // Limpar alerta de duplicada ao digitar
+    if (sanitized.length < 3) {
+      setEtiquetaDuplicada(false);
+      setMensagemDuplicada('');
+    }
   };
+  
+  // Verificar etiqueta duplicada quando parar de digitar
+  useEffect(() => {
+    // Só verificar na etapa 2 (contagem)
+    if (etapa !== 2) return;
+    
+    const verificarDuplicada = async () => {
+      const etiqueta = formData.etiqueta_inventario;
+      
+      if (!etiqueta || etiqueta.length < 3) {
+        setEtiquetaDuplicada(false);
+        setMensagemDuplicada('');
+        return;
+      }
+      
+      // Verificar no histórico local primeiro
+      const duplicadaLocal = historicoContagens.some(
+        item => item.etiqueta === etiqueta && item.num_contagem === contagemSelecionada
+      );
+      
+      if (duplicadaLocal) {
+        setEtiquetaDuplicada(true);
+        setMensagemDuplicada(`Etiqueta "${etiqueta}" já foi registrada nesta sessão para a ${contagemSelecionada}ª contagem.`);
+        return;
+      }
+      
+      // Verificar no backend
+      setVerificandoEtiqueta(true);
+      try {
+        const response = await contagemService.verificarEtiqueta(
+          etiqueta,
+          plantaUsuario,
+          contagemSelecionada
+        );
+        
+        if (response.existe) {
+          setEtiquetaDuplicada(true);
+          setMensagemDuplicada(`Etiqueta "${etiqueta}" já foi registrada para a ${contagemSelecionada}ª contagem.`);
+        } else {
+          setEtiquetaDuplicada(false);
+          setMensagemDuplicada('');
+        }
+      } catch (error) {
+        console.error('Erro ao verificar etiqueta:', error);
+        setEtiquetaDuplicada(false);
+        setMensagemDuplicada('');
+      } finally {
+        setVerificandoEtiqueta(false);
+      }
+    };
+    
+    const timer = setTimeout(verificarDuplicada, 400);
+    return () => clearTimeout(timer);
+  }, [formData.etiqueta_inventario, contagemSelecionada, plantaUsuario, historicoContagens, etapa]);
   
   // Handler especial para quantidade - aceita apenas números
   const handleQtdChange = (e) => {
-    const value = e.target.value;
-    // Permite apenas números, ponto e vírgula (para decimais)
-    const sanitized = value.replace(/[^0-9.,]/g, '').replace(',', '.');
+    let value = e.target.value;
+    // Permite apenas números, ponto e vírgula
+    value = value.replace(/[^0-9.,]/g, '');
     setFormData(prev => ({
       ...prev,
-      qtd: sanitized
+      qtd: value
     }));
     setMessage(null);
   };
@@ -525,6 +595,12 @@ const Contagem = () => {
     }
   };
   
+  const parseQuantidade = (valor) => {
+    if (!valor) return 0;
+    // Remove pontos (milhar) e troca vírgula por ponto (decimal)
+    return parseFloat(valor.replace(/\./g, '').replace(',', '.'));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -546,8 +622,8 @@ const Contagem = () => {
       return;
     }
     
-    // Validar quantidade
-    const qtdNum = parseFloat(formData.qtd);
+    // Use a função de conversão aqui:
+    const qtdNum = parseQuantidade(formData.qtd);
     if (isNaN(qtdNum) || qtdNum < 0) {
       setMessage({
         type: 'error',
@@ -565,7 +641,7 @@ const Contagem = () => {
       const dadosCompletos = {
         ...zonaAtual,
         ...formData,
-        qtd: qtdNum,
+        qtd: qtdNum, // Envia já convertido!
         etiqueta_inventario: normalizeCode(formData.etiqueta_inventario) || formData.etiqueta_inventario,
         part_number: formData.part_number ? (normalizeCode(formData.part_number) || formData.part_number) : '',
         num_contagem: contagemSelecionada
@@ -590,7 +666,42 @@ const Contagem = () => {
       
       // Incrementar contador
       setContagensRealizadas(prev => prev + 1);
-      
+      const handleQtdChange = (event) => {
+  let value = event.target.value;
+
+  // 1. Remove todos os pontos (separadores de milhar)
+  value = value.replace(/\./g, '');
+
+  // 2. Substitui a primeira (e única) vírgula por ponto (separador decimal)
+  value = value.replace(/,/g, '.');
+
+  // 3. Opcional: Garante que apenas um ponto decimal exista e seja no final
+  // (Pode ser complexo se o usuário digitar '1.2.3.4')
+  // Uma regex simples para garantir que a string resultante seja um número válido
+  const validNumberRegex = /^\d*\.?\d*$/;
+
+  if (validNumberRegex.test(value) || value === '') {
+    // Converte para número e atualiza o estado
+    const numericValue = parseFloat(value) || 0; 
+    
+    // ATENÇÃO: Se você armazena a string formatada no estado, 
+    // a lógica abaixo precisa ser invertida para salvar no estado de forma formatada.
+    
+    // Exemplo de como salvar o **número** no estado:
+    // setFormData({ ...formData, qtd: numericValue }); 
+    
+    // --- OU ---
+    
+    // Se você prefere salvar a **string formatada** no estado (o que é comum para inputs):
+    // 4. Converte de volta para o formato de string exibido (com vírgula)
+    const formattedDisplayValue = event.target.value
+                                    .replace(/\./g, '') // Remove pontos para a limpeza
+                                    .replace(/([0-9]+),([0-9]*)/, '$1,$2'); // Apenas aceita um vírgula
+                                    
+    setFormData({ ...formData, qtd: formattedDisplayValue });
+  } 
+  // Se o valor não for válido (ex: dois pontos ou letras), a mudança é ignorada
+};
       // Limpar apenas os campos da contagem, manter zona
       setFormData({
         etiqueta_inventario: '',
@@ -739,7 +850,19 @@ const Contagem = () => {
                       inputMode="numeric"
                       pattern="[0-9]*"
                       autoFocus
-                    />
+                      className={etiquetaDuplicada ? 'input-duplicada' : ''}
+                    /> 
+                    {verificandoEtiqueta && (
+                      <div className="verificando-etiqueta">
+                        <span className="spinner-pequeno"></span> Verificando...
+                      </div>
+                    )}
+                    {etiquetaDuplicada && (
+                      <div className="alerta-duplicada">
+                        <span className="alerta-icone">⚠️</span>
+                        <span className="alerta-texto">{mensagemDuplicada}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 
@@ -803,8 +926,8 @@ const Contagem = () => {
                         </div>
                         {itemSelecionado.und_medida && (
                           <div className="item-info-row">
-                            <span className="item-info-label">Unidade:</span>
-                            <span className="item-info-value">{itemSelecionado.und_medida}</span>
+                            {/*<span className="item-info-label">Unidade:</span>
+                            <span className="item-info-value">{itemSelecionado.und_medida}</span>*/}
                           </div>
                         )}
                       </div>
@@ -836,27 +959,31 @@ const Contagem = () => {
                 
                 <div className="form-group qtd-field">
                   <label>
-                    Quantidade *
-                    {unidadeMedida && <span className="unit-tag">{unidadeMedida}</span>}
+                    {/*Quantidade *
+                    {unidadeMedida && <span className="unit-tag">{unidadeMedida}</span>}*/}
                   </label>
-                  <input
-                    type="text"
-                    name="qtd"
-                    value={formData.qtd}
-                    onChange={handleQtdChange}
-                    placeholder="0"
-                    inputMode="decimal"
-                    pattern="[0-9]*[.,]?[0-9]*"
-                    required
-                  />
+                <input
+                  type="text" // **Mudar para 'text' para aceitar vírgula facilmente**
+                  name="qtd"
+                  value={formData.qtd}
+                  onChange={handleQtdChange} // A lógica de limpeza e conversão irá aqui
+                  placeholder="0,00"
+                  inputMode="numeric" // 'numeric' funciona melhor que 'decimal' com 'type="text"'
+                  // pattern pode ser removido ou ajustado. Se mantiver, mude para:
+                  // pattern="[0-9.,]*" // Aceita dígitos, ponto e vírgula em qualquer ordem
+                  required
+                />
                 </div>
                 
                 <button 
                   type="submit" 
-                  className="btn-submit"
-                  disabled={loading || pnNaoEncontrado || limiteAtingido}
+                  className={`btn-submit ${etiquetaDuplicada ? 'btn-bloqueado' : ''}`}
+                  disabled={loading || pnNaoEncontrado || limiteAtingido || etiquetaDuplicada}
                 >
-                  {loading ? '💾 Salvando...' : limiteAtingido ? '🚫 Limite Atingido (3x)' : '💾 Salvar Contagem'}
+                  {loading ? '💾 Salvando...' : 
+                   limiteAtingido ? '🚫 Limite Atingido (3x)' : 
+                   etiquetaDuplicada ? '⚠️ Etiqueta Já Registrada' :
+                   '💾 Salvar Contagem'}
                 </button>
               </form>
               

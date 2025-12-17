@@ -44,6 +44,31 @@ def get_code_variants(code: Optional[str]) -> Set[str]:
     return variants
 
 
+@router.get("/verificar-etiqueta")
+def verificar_etiqueta_existente(
+    etiqueta: str = Query(..., description="Etiqueta de Inventário"),
+    planta: str = Query(..., description="Planta"),
+    num_contagem: int = Query(..., description="Número da Contagem"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Verifica se uma etiqueta já foi registrada para uma contagem específica.
+    Retorna {existe: true/false}
+    """
+    etiqueta_variantes = get_code_variants(etiqueta)
+    if not etiqueta_variantes:
+        return {"existe": False, "etiqueta": etiqueta}
+    
+    existe = db.query(FormsContagem).filter(
+        FormsContagem.etiqueta_inventario.in_(list(etiqueta_variantes)),
+        FormsContagem.planta == planta,
+        FormsContagem.num_contagem == num_contagem
+    ).first() is not None
+    
+    return {"existe": existe, "etiqueta": etiqueta}
+
+
 @router.get("/sugerir", response_model=ContagemSugestaoResponse)
 def sugerir_numero_contagem(
     pn: Optional[str] = Query(None, description="Part Number (opcional)"),

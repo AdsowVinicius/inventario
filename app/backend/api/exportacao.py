@@ -15,48 +15,67 @@ router = APIRouter(prefix="/exportacao", tags=["Exportação"])
 # Mapeamento de zonas por planta com descrição
 ZONAS_POR_PLANTA = {
     'PS01': {
-        'A': 'Acabado',
-        'B': 'Semi-Acabado',
-        'C': 'Matéria-Prima/Embalagens',
-        'D': 'Almoxarifado',
-        'E': 'Almox/Manutenção',
-        'F': 'Câmara-Fria',
-        'G': 'Qualidade',
-        'H': 'Engenharia'
+        'A': 'Acabado-FG01',
+        'B': 'Semi-Acabado-PR01',
+        'C': 'Matéria-Prima/Embalagens-PR01',
+        "D": 'Embalagens Compradas-GE03',
+        'E': 'Almoxarifado-GE02',
+        'F': 'Almox/Manutenção-GE02',
+        'G': 'Câmara-Fria-PR01',
+        'H': 'Qualidade-PR97',
+        'I': 'Engenharia-FG99'
     },
     'PS02': {
-        'A': 'G2',
-        'B': 'Qualidade',
-        'C': 'Sala de Tintas',
-        'D': 'Almoxarifado de Tintas',
-        'E': 'Almoxarifado',
-        'F': 'Almox/Manutenção',
-        'G': 'Polimento/Retoque',
-        'H': 'Montagem',
-        'I': 'Estoque Acabado'
+        'A': 'G2-PR01',
+        'B': 'Qualidade-PR99',
+        'C': 'Sala de Tintas-PR01',
+        'D': 'Almoxarifado de Tintas-GE03',
+        'E': 'Almoxarifado-GE02',
+        'F': 'Almox/Manutenção-GE02',
+        'G': 'Polimento/Retoque-FG01',
+        'H': 'Montagem-FG01',
+        'I': 'Estoque Acabado-FG01'
     },
     'PS03': {
-        'A': 'Acabado',
-        'B': 'Semi-Acabado',
-        'C': 'Componentes/Embalagens',
-        'D': 'Sala de Tintas',
-        'E': 'Almoxarifado'
+        'A': 'Acabado-FG01',
+        'B': 'Semi-Acabado-PR02',
+        'C': 'Componentes/Embalagens-PR02',
+        'D': 'Sala de Tintas-PR02',
+        'E': 'Almoxarifado-GE02'
     },
     'PS05': {
-        'A': 'Almoxarifado',
-        'B': 'Estoque Acabado',
-        'C': 'Montagem',
-        'D': 'Colagem',
-        'E': 'Semi-Acabado',
-        'F': 'Sala de Materiais',
-        'G': 'G2',
-        'H': 'Obsoleto',
-        'I': 'Engenharia/Qualidade'
+        'A': 'Almoxarifado-GE02',
+        'B': 'Estoque Acabado-FG01',
+        'C': 'Montagem-PR01',
+        'D': 'Colagem-PR01',
+        'E': 'Semi-Acabado-PR01',
+        'F': 'Sala de Materiais-PR01',
+        'G': 'G2-PR02',
+        'H': 'Obsoleto-OB01',
+        'I': 'Engenharia/Qualidade-FG99'
     },
     'PB82': {
-        'A': 'Almoxarifado',
-        'B': 'Estoque',
-        'C': 'Produção'
+        'A': 'Wheel Flare - Solda | Cola PR01',
+        'B': 'Sequenciamento JIS -FG01',
+        'C': 'Gravitacional|WMS - FG01',
+        'D': 'Wheel Flare - Montado FG01',
+        'E': 'Wheel Flare - Montado FG01',
+        'F': 'Wheel Flare - Semiacabado | Pintado PR01',
+        'G': 'RT02',
+        'H': 'Almoxarifados Diretos GE01',
+        'I': 'Indiretos GE02',
+        'J': 'Periféricos Injetados PR01',
+        'K': 'Semi Acabado Injetado PR01',
+        'L': 'Subcomponente Injetado PR01',
+        'M': 'Moretto | Silos PR01',
+        'N': 'Fracionados - Ilha da Produção PR01',
+        'O': 'Semi Acabado PR02',
+        'P': 'Qualidade PR97',
+        'Q': 'Wheel Flare - Qualidade PR97',
+        'R': 'Engenharia FG99',
+        'S': 'JIT | CDC FG01',
+        'T': 'Obsoleto | CDC OB01',
+        'U': 'Químicos | Área Externa GE02'
     }
 }
 
