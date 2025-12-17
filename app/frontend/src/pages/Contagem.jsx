@@ -959,15 +959,16 @@ const Contagem = () => {
                 
                 <div className="form-group qtd-field">
                   <label>
-                    {/*Quantidade *
-                    {unidadeMedida && <span className="unit-tag">{unidadeMedida}</span>}*/}
+                    Quantidade *
+                    {/*{unidadeMedida && <span className="unit-tag">{unidadeMedida}</span>}*/}
                   </label>
                 <input
                   type="text" // **Mudar para 'text' para aceitar vírgula facilmente**
                   name="qtd"
+                  //quero colocar um nome em cima do campo quantidade
                   value={formData.qtd}
                   onChange={handleQtdChange} // A lógica de limpeza e conversão irá aqui
-                  placeholder="0,00"
+                  placeholder="Quantidade"
                   inputMode="numeric" // 'numeric' funciona melhor que 'decimal' com 'type="text"'
                   // pattern pode ser removido ou ajustado. Se mantiver, mude para:
                   // pattern="[0-9.,]*" // Aceita dígitos, ponto e vírgula em qualquer ordem
